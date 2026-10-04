@@ -1,0 +1,31 @@
+{
+  "name": "open-tech-art",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An open catalog of free, openly licensed technical-art resources.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "check:links": "node scripts/check-links.mjs",
+    "check:links:external": "node scripts/check-links.mjs --external",
+    "check:images": "node scripts/check-images.mjs",
+    "validate": "npm run build && npm run check:links && npm run check:images",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.3.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "sharp": "^0.35.5",
+    "typescript": "^6.0.3"
+  }
+}

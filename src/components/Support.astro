@@ -1,0 +1,45 @@
+---
+import { SUPPORT_VALUES } from '../lib/taxonomy';
+interface Props {
+  value: keyof typeof SUPPORT_VALUES;
+}
+const { value } = Astro.props;
+const symbol = { yes: '✓', partial: '◐', no: '✕', unknown: '?' }[value];
+---
+
+<span class={`support support-${value}`}><span aria-hidden="true">{symbol}</span>{SUPPORT_VALUES[value]}</span>
+
+<style>
+  .support {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .support > span {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    color: var(--bg);
+  }
+  .support-yes > span {
+    background: var(--yes);
+  }
+  .support-partial > span {
+    background: var(--partial);
+  }
+  .support-no > span {
+    background: var(--no);
+  }
+  .support-unknown {
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  .support-unknown > span {
+    background: var(--unknown);
+  }
+</style>

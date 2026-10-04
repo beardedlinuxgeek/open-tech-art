@@ -1,0 +1,182 @@
+---
+/**
+ * Raw ↔ Reference comparison. Renders side-by-side figures with no JS; with
+ * JS it upgrades to an interactive slider. Used when an entry has both images.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+type Fig = { src: ImageMetadata; alt: string; caption?: string };
+interface Props {
+  raw: Fig;
+  reference: Fig;
+}
+const { raw, reference } = Astro.props;
+const sizes = '(max-width: 900px) 100vw, 900px';
+---
+
+<section class="compare" aria-labelledby="compare-title" data-compare>
+  <div class="compare-head">
+    <h2 id="compare-title">Raw → Reference</h2>
+    <p>Raw shows what goes in. Reference shows what the technique itself does.</p>
+  </div>
+  <div class="compare-pair">
+    <figure>
+      <Image src={raw.src} alt={raw.alt} widths={[480, 900, 1400]} {sizes} format="webp" />
+      <figcaption><strong>Raw</strong>{raw.caption && ` — ${raw.caption}`}</figcaption>
+    </figure>
+    <figure>
+      <Image src={reference.src} alt={reference.alt} widths={[480, 900, 1400]} {sizes} format="webp" />
+      <figcaption><strong>Reference</strong>{reference.caption && ` — ${reference.caption}`}</figcaption>
+    </figure>
+  </div>
+  <div class="compare-slider" hidden data-slider style="--pos: 50%">
+    <div class="layer">
+      <Image src={reference.src} alt="" widths={[480, 900, 1400]} {sizes} format="webp" />
+    </div>
+    <div class="layer layer-raw">
+      <Image src={raw.src} alt="" widths={[480, 900, 1400]} {sizes} format="webp" />
+    </div>
+    <span class="tag tag-raw">Raw</span>
+    <span class="tag tag-ref">Reference</span>
+    <div class="handle" aria-hidden="true"></div>
+    <label class="visually-hidden" for="compare-range">Comparison position</label>
+    <input id="compare-range" type="range" min="0" max="100" value="50" step="1" />
+  </div>
+  <button type="button" class="btn compare-toggle" hidden data-toggle>Side by side</button>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-compare]').forEach((root) => {
+    const pair = root.querySelector<HTMLElement>('.compare-pair')!;
+    const slider = root.querySelector<HTMLElement>('[data-slider]')!;
+    const range = slider.querySelector<HTMLInputElement>('input')!;
+    const toggle = root.querySelector<HTMLButtonElement>('[data-toggle]')!;
+    let sliderMode = true;
+    const render = () => {
+      pair.hidden = sliderMode;
+      slider.hidden = !sliderMode;
+      toggle.textContent = sliderMode ? 'Side by side' : 'Slider';
+    };
+    range.addEventListener('input', () => slider.style.setProperty('--pos', `${range.value}%`));
+    toggle.addEventListener('click', () => {
+      sliderMode = !sliderMode;
+      render();
+    });
+    toggle.hidden = false;
+    render();
+  });
+</script>
+
+<style>
+  .compare {
+    margin: 40px 0;
+  }
+  .compare-head h2 {
+    font-size: 1.3rem;
+    margin-bottom: 4px;
+  }
+  .compare-head p {
+    margin: 0 0 16px;
+    color: var(--ink-2);
+  }
+  .compare-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .compare-pair figure {
+    margin: 0;
+  }
+  .compare-pair :global(img) {
+    border-radius: var(--radius-sm);
+    width: 100%;
+  }
+  figcaption {
+    font-size: 0.85rem;
+    color: var(--ink-3);
+    margin-top: 6px;
+  }
+  .compare-slider {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--img-bg);
+    user-select: none;
+  }
+  .layer :global(img) {
+    width: 100%;
+  }
+  .layer-raw {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+  }
+  .layer-raw :global(img) {
+    height: 100%;
+    object-fit: cover;
+  }
+  .handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--pos);
+    width: 2px;
+    margin-left: -1px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.3);
+    pointer-events: none;
+  }
+  .handle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 34px;
+    height: 34px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+  }
+  .tag {
+    position: absolute;
+    top: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgb(0 0 0 / 0.6);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    pointer-events: none;
+  }
+  .tag-raw {
+    left: 12px;
+  }
+  .tag-ref {
+    right: 12px;
+  }
+  .compare-slider input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: ew-resize;
+  }
+  .compare-slider:has(input:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .compare-toggle {
+    margin-top: 12px;
+    min-height: 36px;
+    font-size: 0.85rem;
+  }
+  @media (max-width: 600px) {
+    .compare-pair {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

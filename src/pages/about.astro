@@ -1,0 +1,102 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../data/site';
+---
+
+<Base
+  title="About"
+  description="What Open Tech Art is, how resources are selected, and the principles behind the catalog."
+  section="about"
+>
+  <div class="wrap page">
+    <header>
+      <p class="eyebrow">About</p>
+      <h1>An open library for technical art</h1>
+    </header>
+    <div class="prose">
+      <p class="lead">
+        Technical art is mostly shared in scattered places: GitHub repositories, itch.io pages, personal
+        blogs, tutorial projects and forum threads. Open Tech Art collects the good, freely licensed work
+        into one consistent, searchable catalog, and it always sends you back to the people who made it.
+      </p>
+
+      <h2>What this is — and isn't</h2>
+      <p>
+        Open Tech Art is a <strong>curated resource library</strong>, not a marketplace. Nothing here is for
+        sale, nothing is ranked by popularity, and there are no accounts. Most entries point to resources
+        hosted elsewhere. For each one we add discovery, consistent metadata, screenshots, categorisation,
+        compatibility notes and a clear link to the original project.
+      </p>
+      <p>
+        The library starts with <strong>Unity URP</strong> shaders and rendering techniques, especially
+        Shader Graph. The content model is deliberately broader, so VFX, lighting setups, impostor systems,
+        reference scenes, editor tools and other engines can be added without restructuring.
+      </p>
+
+      <h2>Selection criteria</h2>
+      <ul>
+        <li>The project exists and is reachable at its original location.</li>
+        <li>It is <strong>free</strong> to obtain.</li>
+        <li>
+          It has an <strong>explicit open license</strong> that allows use and the display of its
+          screenshots, such as MIT, BSD, Apache 2.0, CC0, CC BY or the Unlicense. Free of charge is not the
+          same as open, and anything with ambiguous terms is left out.
+        </li>
+        <li>The creator provides screenshots that we are allowed to show.</li>
+        <li>Compatibility is recorded only as stated by the creator or evident from the project.</li>
+      </ul>
+      <p>
+        Every entry has a <em>catalog record</em>: the date it was checked, the revision that was checked,
+        and notes on how. If something has changed upstream, please
+        <a href={SITE.issuesUrl}>open an issue</a> or edit the entry directly.
+      </p>
+
+      <h2 id="raw-reference-showcase">Raw → Reference → Showcase</h2>
+      <p>Our long-term image standard has three parts:</p>
+      <ul>
+        <li><strong>Raw</strong> shows what goes in: the geometry or input without the technique.</li>
+        <li><strong>Reference</strong> shows what the technique itself does, under simple, honest conditions.</li>
+        <li><strong>Showcase</strong> shows what can be achieved with it in a polished scene.</li>
+      </ul>
+      <p>
+        Resource pages can already show Raw and Reference side by side or with a comparison slider. The
+        first seed entries were collected from the web, so they use the creators' own screenshots. We never
+        manufacture missing images. Unusual techniques sometimes need exceptions, because honesty and
+        clarity matter more than rigid standardisation.
+      </p>
+
+      <h2>Licensing of this site</h2>
+      <ul>
+        <li>The website source code is released under the MIT License.</li>
+        <li>
+          Catalog metadata written for Open Tech Art (descriptions, tags, structured fields) is dedicated to
+          the public domain under CC0 1.0. You can reuse it freely, for example through
+          <a href="/resources.json">the JSON catalog</a>.
+        </li>
+        <li>
+          Resources and their screenshots remain the work of their creators. They are shown under each
+          resource's own license, which is stated on its page.
+        </li>
+      </ul>
+      <p>
+        If you are a creator and want an entry changed or removed, <a href={SITE.issuesUrl}>open an issue</a>
+        and we'll act on it promptly.
+      </p>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-top: 40px;
+  }
+  header h1 {
+    font-size: clamp(1.9rem, 3.4vw, 2.7rem);
+    max-width: 22ch;
+    margin: 8px 0 24px;
+  }
+  .lead {
+    font-size: 1.15rem;
+    color: var(--ink);
+  }
+</style>

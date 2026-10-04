@@ -1,0 +1,142 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { SITE } from '../data/site';
+
+const example = `src/content/resources/
+  my-water-shader/
+    index.md        ← metadata (frontmatter) + documentation (Markdown)
+    hero.webp       ← optional showcase image
+    reference.webp  ← the effect under simple, honest conditions
+    raw.webp        ← the input without the effect
+    detail-1.webp   ← optional gallery images`;
+---
+
+<Base
+  title="Contribute"
+  description="How to suggest or add a resource to Open Tech Art: a Git-based workflow with one folder per resource."
+  section="contribute"
+>
+  <div class="wrap page">
+    <header>
+      <p class="eyebrow">Contribute</p>
+      <h1>Add a resource to the library</h1>
+      <p class="lead">
+        The catalog lives in Git. Each resource is one folder holding a Markdown file and a few images, so
+        adding one is a normal pull request. There are no forms and no accounts.
+      </p>
+    </header>
+
+    <div class="cols">
+      <div class="prose">
+        <h2>Two ways to help</h2>
+        <ol>
+          <li>
+            <strong>Suggest a resource.</strong> <a href={SITE.issuesUrl}>Open an issue</a> with a link to the
+            project and its license. That's enough for us to check it.
+          </li>
+          <li>
+            <strong>Add it yourself.</strong> Fork the repository, add a folder under
+            <code>src/content/resources/</code>, run the build, and open a pull request.
+          </li>
+        </ol>
+
+        <h2>What a resource looks like</h2>
+        <pre><code>{example}</code></pre>
+        <p>
+          The folder name becomes the URL. The frontmatter is checked against a schema at build time, so
+          mistakes show up as clear build errors rather than broken pages. Optional fields can be left out,
+          and unknown compatibility should stay <code>unknown</code>.
+        </p>
+
+        <h2>Before you submit</h2>
+        <ul>
+          <li>Link prominently to the original project, and credit the real creator.</li>
+          <li>Confirm the resource is free <em>and</em> has an explicit open license. Record it accurately.</li>
+          <li>Only include screenshots the license allows us to display. Keep them web-sized (WebP, ≤ 1920 px).</li>
+          <li>Don't re-host the asset itself unless there's a strong reason and the license clearly allows it.</li>
+          <li>Don't guess versions, pipelines or VR/mobile support.</li>
+        </ul>
+
+        <h2>Raw → Reference → Showcase</h2>
+        <p>
+          New entries should eventually include a <strong>Raw</strong> image (the input), a
+          <strong>Reference</strong> image (the technique under simple conditions) and optionally a
+          <strong>Showcase</strong> hero. Unusual techniques may need exceptions. Explain them in the entry,
+          because honesty and clarity matter more than rigid rules.
+        </p>
+      </div>
+
+      <aside class="side">
+        <div class="box">
+          <h2>Full guidelines</h2>
+          <p>The submission guidelines cover the schema fields, image rules and review checklist.</p>
+          <a class="btn btn-primary" href={SITE.newResourceUrl} rel="noopener">
+            <Icon name="book" /> Submission guidelines
+          </a>
+        </div>
+        <div class="box">
+          <h2>Repository</h2>
+          <p>Development setup, build commands and deployment are documented in the README.</p>
+          <a class="btn" href={SITE.repo} rel="noopener"><Icon name="github" /> View on GitHub</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-top: 40px;
+  }
+  header {
+    max-width: 72ch;
+    margin-bottom: 16px;
+  }
+  header h1 {
+    font-size: clamp(1.9rem, 3.4vw, 2.7rem);
+    margin: 8px 0 12px;
+  }
+  .lead {
+    font-size: 1.12rem;
+    color: var(--ink-2);
+    margin: 0;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 48px;
+    align-items: start;
+  }
+  .side {
+    position: sticky;
+    top: calc(var(--header-h) + 24px);
+    display: grid;
+    gap: 16px;
+    margin-top: 40px;
+  }
+  .box {
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+  }
+  .box h2 {
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+  .box p {
+    margin: 0 0 14px;
+    color: var(--ink-2);
+    font-size: 0.92rem;
+  }
+  @media (max-width: 900px) {
+    .cols {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+    .side {
+      position: static;
+    }
+  }
+</style>

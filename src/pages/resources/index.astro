@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import Catalog from '../../components/Catalog.astro';
+import { getResources } from '../../lib/resources';
+
+const resources = await getResources();
+---
+
+<Base
+  title="Browse resources"
+  description="Search and filter free, openly licensed technical-art resources by category, type, implementation, render pipeline, license and tag."
+  section="browse"
+>
+  <div class="wrap">
+    <header class="page-head">
+      <h1 id="catalog-title">Browse resources</h1>
+      <p>
+        Every entry links back to its original creator. Filter by what the resource is, how it's built and
+        what it runs on.
+      </p>
+    </header>
+    <Catalog resources={resources} headingId="catalog-title" />
+  </div>
+</Base>
+
+<style>
+  .page-head {
+    padding: 36px 0 28px;
+  }
+  .page-head h1 {
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    margin-bottom: 6px;
+  }
+  .page-head p {
+    margin: 0;
+    color: var(--ink-2);
+    max-width: 62ch;
+  }
+</style>

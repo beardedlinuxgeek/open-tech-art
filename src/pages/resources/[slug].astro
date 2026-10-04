@@ -1,0 +1,774 @@
+---
+import { Image } from 'astro:assets';
+import { getEntry, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Compare from '../../components/Compare.astro';
+import Gallery from '../../components/Gallery.astro';
+import Support from '../../components/Support.astro';
+import ResourceCard from '../../components/ResourceCard.astro';
+import { SITE } from '../../data/site';
+import {
+  categoryUrl,
+  coverImage,
+  engineLabel,
+  getResources,
+  hostOf,
+  implementationLabels,
+  licenseInfo,
+  pipelineLabels,
+  platformLabel,
+  typeLabel,
+  type Resource,
+} from '../../lib/resources';
+
+export async function getStaticPaths() {
+  const resources = await getResources();
+  return resources.map((resource) => ({ params: { slug: resource.id }, props: { resource, resources } }));
+}
+
+interface Props {
+  resource: Resource;
+  resources: Resource[];
+}
+
+const { resource: r, resources } = Astro.props;
+const d = r.data;
+const { Content } = await render(r);
+const category = await getEntry(d.category);
+const cover = coverImage(r);
+const license = licenseInfo(r);
+const engine = d.engine;
+const pipelines = pipelineLabels(r);
+const impl = implementationLabels(r);
+const primaryPlatform = platformLabel(d.platforms[0]);
+
+// The primary image is shown large; the rest go into the gallery. When both
+// raw and reference exist they get the comparison component instead.
+const hasCompare = Boolean(d.images.raw && d.images.reference);
+const galleryImages = [
+  ...(!hasCompare && d.images.reference && d.images.reference !== cover ? [d.images.reference] : []),
+  ...(!hasCompare && d.images.raw ? [d.images.raw] : []),
+  ...d.images.gallery.filter((g) => g !== cover),
+];
+
+const fmtDate = (date: Date) =>
+  date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+
+const secondaryLinks = [
+  d.links.source && d.links.source !== d.links.project
+    ? { label: 'Source code', url: d.links.source, icon: 'github' as const }
+    : undefined,
+  d.links.download && d.links.download !== d.links.project
+    ? { label: 'Download', url: d.links.download, icon: 'download' as const }
+    : undefined,
+  d.links.docs ? { label: 'Documentation', url: d.links.docs, icon: 'book' as const } : undefined,
+].filter((l): l is NonNullable<typeof l> => Boolean(l));
+
+// Related: same category first, then shared tags.
+const related = resources
+  .filter((o) => o.id !== r.id)
+  .map((o) => ({
+    o,
+    score:
+      (o.data.category.id === d.category.id ? 3 : 0) +
+      o.data.tags.filter((t) => d.tags.includes(t)).length +
+      (o.data.type === d.type ? 1 : 0),
+  }))
+  .filter((x) => x.score > 0)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3)
+  .map((x) => x.o);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: d.title,
+  description: d.summary,
+  url: new URL(Astro.url.pathname, Astro.site).toString(),
+  sameAs: d.links.project,
+  license: d.license.url,
+  author: d.creators.map((c) => ({ '@type': 'Person', name: c.name, url: c.url })),
+  keywords: d.tags.join(', '),
+};
+---
+
+<Base title={d.title} description={d.summary} image={cover?.src} imageAlt={cover?.alt} section="browse">
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
+
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/resources/">Browse</a></li>
+        {category && <li><a href={categoryUrl(category.id)}>{category.data.title}</a></li>}
+        <li aria-current="page">{d.title}</li>
+      </ol>
+    </nav>
+
+    <article class="resource">
+      <div class="top">
+        <figure class="primary">
+          {
+            cover ? (
+              <a href={cover.src.src} class="primary-link" data-lightbox-index="0" aria-label={`View full size: ${cover.alt}`}>
+                <Image
+                  src={cover.src}
+                  alt={cover.alt}
+                  widths={[640, 960, 1280, 1600]}
+                  sizes="(max-width: 1000px) 100vw, 900px"
+                  loading="eager"
+                  fetchpriority="high"
+                  format="webp"
+                  quality={82}
+                />
+              </a>
+            ) : (
+              <div class="noimg">No image available</div>
+            )
+          }
+          {
+            cover && (
+              <figcaption>
+                {cover.caption && <span>{cover.caption}</span>}
+                <span class="credit">
+                  Image © {d.creators.map((c) => c.name).join(', ')} ·{' '}
+                  {d.images.provenance === 'creator' ? 'creator-provided' : 'captured to the submission standard'},
+                  used under {license.spdx}
+                </span>
+              </figcaption>
+            )
+          }
+        </figure>
+
+        <aside class="panel" aria-label="Resource summary">
+          <p class="eyebrow">{typeLabel(r)}{category && ` · ${category.data.title}`}</p>
+          <h1>{d.title}</h1>
+          <p class="byline">
+            <span class="by">by</span>{' '}
+            {
+              d.creators.map((c, i) => (
+                <>
+                  {i > 0 && ', '}
+                  {c.url ? (
+                    <a href={c.url} rel="noopener">
+                      {c.name}
+                    </a>
+                  ) : (
+                    c.name
+                  )}
+                  {c.role && <span class="role"> ({c.role})</span>}
+                </>
+              ))
+            }
+          </p>
+          <p class="summary">{d.summary}</p>
+
+          <div class="ctas">
+            <a class="btn btn-primary btn-block" href={d.links.project} rel="noopener">
+              View original project
+              <span class="host">on {primaryPlatform === 'Other' ? hostOf(d.links.project) : primaryPlatform}</span>
+              <Icon name="external" />
+            </a>
+            {
+              secondaryLinks.length > 0 && (
+                <div class="secondary">
+                  {secondaryLinks.map((l) => (
+                    <a class="btn" href={l.url} rel="noopener">
+                      <Icon name={l.icon} />
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
+              )
+            }
+          </div>
+
+          <dl class="quick">
+            <div>
+              <dt>License</dt>
+              <dd>
+                <a href={license.url} rel="noopener">{license.name}</a>
+              </dd>
+            </div>
+            {
+              engine && (
+                <div>
+                  <dt>Engine</dt>
+                  <dd>
+                    {engineLabel(r)}
+                    {pipelines.length > 0 && ` · ${pipelines.join(', ')}`}
+                  </dd>
+                </div>
+              )
+            }
+            {
+              impl.length > 0 && (
+                <div>
+                  <dt>Built with</dt>
+                  <dd>{impl.join(', ')}</dd>
+                </div>
+              )
+            }
+          </dl>
+
+          <p class="hosted-note">
+            Open Tech Art doesn't host this resource. It is made and distributed by its creator. Download it
+            from the original project and follow its license.
+          </p>
+        </aside>
+      </div>
+
+      <div class="body">
+        <div class="main-col">
+          {hasCompare && d.images.raw && d.images.reference && <Compare raw={d.images.raw} reference={d.images.reference} />}
+
+          {galleryImages.length > 0 && <Gallery images={galleryImages} />}
+
+          <section class="docs prose" aria-labelledby="about-title">
+            <h2 id="about-title" class="visually-hidden">About this resource</h2>
+            <Content />
+          </section>
+        </div>
+
+        <aside class="side-col" aria-label="Details">
+          <section class="box">
+            <h2>Compatibility</h2>
+            <dl class="specs">
+              {
+                engine && (
+                  <>
+                    <div>
+                      <dt>Engine</dt>
+                      <dd>{engineLabel(r)}</dd>
+                    </div>
+                    <div>
+                      <dt>Render pipeline</dt>
+                      <dd>{pipelines.length ? pipelines.join(', ') : <span class="unknown">Not stated</span>}</dd>
+                    </div>
+                    {engine.testedVersions.length > 0 && (
+                      <div>
+                        <dt>Tested with</dt>
+                        <dd>{engine.testedVersions.join(', ')}</dd>
+                      </div>
+                    )}
+                    {engine.minVersion && (
+                      <div>
+                        <dt>Minimum version</dt>
+                        <dd>{engine.minVersion}</dd>
+                      </div>
+                    )}
+                    {engine.testedVersions.length === 0 && !engine.minVersion && (
+                      <div>
+                        <dt>Version</dt>
+                        <dd>
+                          <span class="unknown">Not stated by creator</span>
+                        </dd>
+                      </div>
+                    )}
+                    {engine.packages.length > 0 && (
+                      <div>
+                        <dt>Packages</dt>
+                        <dd>
+                          <ul class="plain">
+                            {engine.packages.map((p) => (
+                              <li>
+                                {p.name} <code>{p.version}</code>
+                              </li>
+                            ))}
+                          </ul>
+                        </dd>
+                      </div>
+                    )}
+                  </>
+                )
+              }
+              <div>
+                <dt>VR</dt>
+                <dd><Support value={d.compatibility.vr} /></dd>
+              </div>
+              <div>
+                <dt>Quest / mobile</dt>
+                <dd><Support value={d.compatibility.mobile} /></dd>
+              </div>
+            </dl>
+            {d.compatibility.notes && <p class="note">{d.compatibility.notes}</p>}
+            <p class="fineprint">
+              Compatibility records only what the creator states or what is evident from the project.
+              "Unknown" means nobody has confirmed it yet.
+            </p>
+          </section>
+
+          {
+            d.requirements.length > 0 && (
+              <section class="box">
+                <h2>Requirements</h2>
+                <ul class="reqs">
+                  {d.requirements.map((req) => (
+                    <li set:html={req.replace(/`([^`]+)`/g, '<code>$1</code>')} />
+                  ))}
+                </ul>
+              </section>
+            )
+          }
+
+          <section class="box">
+            <h2>License &amp; attribution</h2>
+            <dl class="specs">
+              <div>
+                <dt>License</dt>
+                <dd>
+                  <a href={license.url} rel="noopener">{license.name}</a>{' '}
+                  <span class="spdx">({license.spdx})</span>
+                </dd>
+              </div>
+              {
+                d.license.holder && (
+                  <div>
+                    <dt>Copyright</dt>
+                    <dd>{d.license.holder}</dd>
+                  </div>
+                )
+              }
+              <div>
+                <dt>Published on</dt>
+                <dd>{d.platforms.map(platformLabel).join(', ')}</dd>
+              </div>
+            </dl>
+            {d.license.notes && <p class="note">{d.license.notes}</p>}
+            <p class="fineprint">
+              <a href={license.about} rel="noopener">About the {license.spdx} license</a>
+            </p>
+          </section>
+
+          {
+            d.tags.length > 0 && (
+              <section class="box">
+                <h2>Tags</h2>
+                <ul class="tags">
+                  {d.tags.map((t) => (
+                    <li>
+                      <a class="chip" href={`/resources/?tags=${encodeURIComponent(t)}`}>
+                        {t.replaceAll('-', ' ')}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )
+          }
+
+          <section class="box">
+            <h2>Links</h2>
+            <ul class="links">
+              <li>
+                <a href={d.links.project} rel="noopener">Original project</a>
+                <span>{hostOf(d.links.project)}</span>
+              </li>
+              {
+                secondaryLinks.map((l) => (
+                  <li>
+                    <a href={l.url} rel="noopener">{l.label}</a>
+                    <span>{hostOf(l.url)}</span>
+                  </li>
+                ))
+              }
+              {
+                d.links.extra.map((l) => (
+                  <li>
+                    <a href={l.url} rel="noopener">{l.label}</a>
+                    <span>{hostOf(l.url)}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+
+          <section class="box verification">
+            <h2>Catalog record</h2>
+            <dl class="specs">
+              <div>
+                <dt>Verified</dt>
+                <dd>
+                  <time datetime={d.verification.date.toISOString().slice(0, 10)}>{fmtDate(d.verification.date)}</time>
+                  {d.verification.revision && (
+                    <>
+                      {' '}at <code>{d.verification.revision}</code>
+                    </>
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt>Added</dt>
+                <dd><time datetime={d.added.toISOString().slice(0, 10)}>{fmtDate(d.added)}</time></dd>
+              </div>
+              {
+                d.updated && (
+                  <div>
+                    <dt>Updated</dt>
+                    <dd><time datetime={d.updated.toISOString().slice(0, 10)}>{fmtDate(d.updated)}</time></dd>
+                  </div>
+                )
+              }
+            </dl>
+            {d.verification.notes && <p class="note">{d.verification.notes}</p>}
+            <p class="fineprint">
+              Spotted something wrong or out of date?{' '}
+              <a href={`${SITE.repo}/edit/main/src/content/resources/${r.id}/index.md`} rel="noopener">Edit this entry on GitHub</a>.
+            </p>
+          </section>
+        </aside>
+      </div>
+    </article>
+
+    {
+      related.length > 0 && (
+        <section class="related" aria-labelledby="related-title">
+          <h2 id="related-title">Related resources</h2>
+          <div class="related-grid">
+            {related.map((o) => (
+              <ResourceCard resource={o} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+
+</Base>
+
+<script>
+  // Clicking the primary image opens the gallery lightbox when one exists;
+  // otherwise the link simply opens the full-size image.
+  const primary = document.querySelector<HTMLAnchorElement>('.primary-link');
+  const dialog = document.querySelector<HTMLDialogElement>('.gallery dialog');
+  if (primary && dialog) {
+    primary.addEventListener('click', (e) => {
+      e.preventDefault();
+      const img = dialog.querySelector('img')!;
+      const cap = dialog.querySelector('figcaption')!;
+      const src = primary.querySelector('img');
+      img.src = src?.currentSrc || primary.href;
+      img.alt = src?.alt ?? '';
+      cap.textContent = primary.closest('figure')?.querySelector('figcaption span')?.textContent ?? '';
+      dialog.showModal();
+    });
+  }
+</script>
+
+<style>
+  .crumbs {
+    padding: 20px 0 16px;
+    font-size: 0.88rem;
+  }
+  .crumbs ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    color: var(--ink-3);
+  }
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: 6px;
+    color: var(--line-strong);
+  }
+  .crumbs a {
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  .crumbs a:hover {
+    text-decoration: underline;
+  }
+  .crumbs [aria-current] {
+    color: var(--ink);
+  }
+
+  .top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.75fr) minmax(300px, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+  .primary {
+    margin: 0;
+  }
+  .primary-link {
+    display: block;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--img-bg);
+    border: 1px solid var(--line);
+    cursor: zoom-in;
+  }
+  .primary-link :global(img) {
+    width: 100%;
+    max-height: 72vh;
+    object-fit: contain;
+    margin-inline: auto;
+  }
+  .noimg {
+    aspect-ratio: 21 / 9;
+    display: grid;
+    place-items: center;
+    background: var(--img-bg);
+    border-radius: var(--radius);
+    color: var(--ink-3);
+  }
+  .primary figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 16px;
+    margin-top: 8px;
+    font-size: 0.82rem;
+    color: var(--ink-3);
+  }
+  .credit {
+    font-style: italic;
+  }
+
+  .panel {
+    position: sticky;
+    top: calc(var(--header-h) + 20px);
+  }
+  .panel h1 {
+    font-size: clamp(1.7rem, 2.6vw, 2.3rem);
+    margin: 6px 0 8px;
+    letter-spacing: -0.025em;
+  }
+  .byline {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+  .byline .by {
+    font-weight: 400;
+    color: var(--ink-3);
+  }
+  .byline a {
+    color: var(--ink);
+  }
+  .byline .role {
+    font-weight: 400;
+    color: var(--ink-3);
+    font-size: 0.9em;
+  }
+  .summary {
+    color: var(--ink-2);
+    margin: 0 0 20px;
+  }
+  .ctas {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .btn-block {
+    width: 100%;
+    min-height: 52px;
+    font-size: 1rem;
+  }
+  .btn-block .host {
+    font-weight: 400;
+  }
+  .secondary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .secondary .btn {
+    flex: 1 1 auto;
+    font-size: 0.88rem;
+  }
+  .quick {
+    margin: 0;
+    border-top: 1px solid var(--line);
+  }
+  .quick > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.92rem;
+  }
+  .quick dt {
+    color: var(--ink-3);
+  }
+  .quick dd {
+    margin: 0;
+    text-align: right;
+    font-weight: 600;
+  }
+  .hosted-note {
+    margin: 14px 0 0;
+    font-size: 0.8rem;
+    color: var(--ink-3);
+    line-height: 1.45;
+  }
+
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.75fr) minmax(300px, 1fr);
+    gap: 32px;
+    margin-top: 16px;
+    align-items: start;
+  }
+  .docs {
+    margin-top: 32px;
+  }
+  .docs :global(> :first-child) {
+    margin-top: 0;
+  }
+  .side-col {
+    display: grid;
+    gap: 16px;
+    margin-top: 40px;
+  }
+  .box {
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 18px 16px;
+  }
+  .box h2 {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 600;
+    margin: 0 0 10px;
+  }
+  .specs {
+    margin: 0;
+  }
+  .specs > div {
+    display: grid;
+    grid-template-columns: 9.5em minmax(0, 1fr);
+    gap: 12px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.9rem;
+  }
+  .specs > div:last-child {
+    border-bottom: 0;
+  }
+  .specs dt {
+    color: var(--ink-3);
+  }
+  .specs dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .specs code,
+  .reqs :global(code) {
+    font-size: 0.82em;
+    background: var(--bg-sunken);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+  .plain {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .unknown {
+    color: var(--ink-3);
+  }
+  .spdx {
+    color: var(--ink-3);
+    font-size: 0.85em;
+  }
+  .note {
+    margin: 10px 0 0;
+    font-size: 0.86rem;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
+  .fineprint {
+    margin: 10px 0 0;
+    font-size: 0.78rem;
+    color: var(--ink-3);
+    line-height: 1.45;
+  }
+  .reqs {
+    margin: 0;
+    padding-left: 1.1em;
+    font-size: 0.9rem;
+    color: var(--ink-2);
+  }
+  .reqs li + li {
+    margin-top: 6px;
+  }
+  .tags {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tags .chip {
+    min-height: 30px;
+  }
+  .links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9rem;
+  }
+  .links li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .links li:last-child {
+    border-bottom: 0;
+  }
+  .links a {
+    font-weight: 600;
+  }
+  .links span {
+    color: var(--ink-3);
+    font-size: 0.82rem;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  .related {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+  }
+  .related h2 {
+    font-size: 1.3rem;
+  }
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
+    gap: 20px;
+  }
+
+  @media (max-width: 1000px) {
+    .top,
+    .body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .panel {
+      position: static;
+    }
+    .side-col {
+      margin-top: 8px;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+      align-items: start;
+    }
+    .body {
+      gap: 0;
+    }
+  }
+</style>

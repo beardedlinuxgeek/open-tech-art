@@ -1,0 +1,311 @@
+---
+import '../styles/global.css';
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
+import Logo from '../components/Logo.astro';
+import Icon from '../components/Icon.astro';
+import { SITE } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: ImageMetadata;
+  imageAlt?: string;
+  /** Marks the matching primary nav item as current. */
+  section?: 'browse' | 'about' | 'contribute';
+  noindex?: boolean;
+}
+
+const { title, description = SITE.description, image, imageAlt, section, noindex } = Astro.props;
+const pageTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+let ogImage: string | undefined;
+if (image) {
+  const img = await getImage({ src: image, width: 1200, format: 'jpg', quality: 82 });
+  ogImage = new URL(img.src, Astro.site).toString();
+}
+
+const nav = [
+  { href: '/resources/', label: 'Browse', key: 'browse' },
+  { href: '/about/', label: 'About', key: 'about' },
+  { href: '/contribute/', label: 'Contribute', key: 'contribute' },
+] as const;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="application/json" href="/resources.json" title="Open Tech Art catalog (JSON)" />
+    <meta name="theme-color" content="#f4f3ef" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)" />
+
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title ?? SITE.name} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      try {
+        const t = localStorage.getItem('ota-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <a class="brand" href="/" aria-label={`${SITE.name} home`}>
+          <Logo size={28} />
+          <span class="brand-name">Open<span> Tech </span>Art</span>
+        </a>
+        <nav class="primary-nav" aria-label="Primary">
+          <ul>
+            {
+              nav.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={section === item.key ? 'page' : undefined}>
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+        <div class="header-tools">
+          <a class="icon-btn gh" href={SITE.repo} rel="noopener">
+            <Icon name="github" />
+            <span class="visually-hidden">Open Tech Art on GitHub</span>
+          </a>
+          <button class="icon-btn theme-toggle" type="button" aria-label="Toggle colour theme" hidden>
+            <Icon name="sun" class="i-sun" />
+            <Icon name="moon" class="i-moon" />
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <div class="footer-brand">
+          <a class="brand" href="/">
+            <Logo size={24} />
+            <span class="brand-name">Open Tech Art</span>
+          </a>
+          <p>
+            A curated, open catalog of technical-art resources. Every resource belongs to its original
+            creator and is listed under its own license — follow the links to get it from the source.
+          </p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer">
+          <ul>
+            <li><a href="/resources/">Browse resources</a></li>
+            <li><a href="/about/">About &amp; principles</a></li>
+            <li><a href="/contribute/">Suggest a resource</a></li>
+            <li><a href="/resources.json">Catalog JSON</a></li>
+            <li><a href={SITE.repo} rel="noopener">Source on GitHub</a></li>
+          </ul>
+        </nav>
+        <p class="footer-legal">
+          Site code MIT · Catalog metadata CC0 · Resource content and screenshots remain under their
+          creators' licenses, as stated on each page.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      const btn = document.querySelector<HTMLButtonElement>('.theme-toggle');
+      if (btn) {
+        btn.hidden = false;
+        const root = document.documentElement;
+        const current = () =>
+          root.dataset.theme ??
+          (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const sync = () => btn.setAttribute('aria-pressed', String(current() === 'dark'));
+        sync();
+        btn.addEventListener('click', () => {
+          const next = current() === 'dark' ? 'light' : 'dark';
+          root.dataset.theme = next;
+          try {
+            localStorage.setItem('ota-theme', next);
+          } catch {}
+          sync();
+        });
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(10px);
+    -webkit-backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .header-inner {
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    font-size: 1.05rem;
+    white-space: nowrap;
+  }
+  .brand-name span {
+    color: var(--accent);
+  }
+  .primary-nav ul {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .primary-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--ink-2);
+    font-weight: 550;
+    font-size: 0.95rem;
+  }
+  .primary-nav a:hover {
+    color: var(--ink);
+    background: var(--bg-sunken);
+  }
+  .primary-nav a[aria-current='page'] {
+    color: var(--ink);
+    box-shadow: inset 0 -2px 0 var(--accent);
+    border-radius: 0;
+  }
+  .header-tools {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+  }
+  .icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    border: 0;
+    background: transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .icon-btn:hover {
+    background: var(--bg-sunken);
+    color: var(--ink);
+  }
+  .icon-btn :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+  .theme-toggle :global(.i-moon) {
+    display: none;
+  }
+  .theme-toggle[aria-pressed='true'] :global(.i-sun) {
+    display: none;
+  }
+  .theme-toggle[aria-pressed='true'] :global(.i-moon) {
+    display: block;
+  }
+
+  @media (max-width: 640px) {
+    .header-inner {
+      gap: 8px;
+    }
+    .brand-name {
+      display: none;
+    }
+    .primary-nav a {
+      padding: 0 8px;
+      font-size: 0.92rem;
+    }
+    .header-tools {
+      gap: 0;
+    }
+    .header-tools .gh {
+      display: none;
+    }
+  }
+
+  .site-footer {
+    margin-top: 96px;
+    border-top: 1px solid var(--line);
+    background: var(--bg-sunken);
+    color: var(--ink-2);
+    font-size: 0.9rem;
+  }
+  .footer-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 32px 48px;
+    padding-block: 48px 32px;
+  }
+  .footer-brand p {
+    max-width: 52ch;
+    margin: 12px 0 0;
+  }
+  .footer-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .footer-nav a {
+    text-decoration: none;
+  }
+  .footer-nav a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+  .footer-legal {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-3);
+    font-size: 0.82rem;
+  }
+  @media (max-width: 720px) {
+    .footer-inner {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
