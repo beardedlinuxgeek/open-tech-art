@@ -55,7 +55,9 @@ function readResources() {
   for (const slug of readdirSync(RESOURCES).sort()) {
     const file = join(RESOURCES, slug, 'index.md');
     if (!existsSync(file)) continue;
-    const fm = readFileSync(file, 'utf8').match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
+    // Normalise line endings: Windows checkouts (core.autocrlf) use CRLF.
+    const text = readFileSync(file, 'utf8').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
+    const fm = text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
     const repo = fm.match(/^repo:\s*["']?([\w.-]+\/[\w.-]+)["']?\s*$/m)?.[1];
     if (!repo) {
       console.warn(`! ${slug}: no \`repo:\` in frontmatter — skipped`);
@@ -123,7 +125,12 @@ function fromGit(repo) {
 const previous = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : { repos: {} };
 const repos = { ...previous.repos };
 const now = new Date().toISOString();
-const resources = readResources().filter(
+const allResources = readResources();
+if (allResources.length === 0) {
+  console.error('No resources with a `repo:` field were found — nothing to update. Stats file left untouched.');
+  process.exit(1);
+}
+const resources = allResources.filter(
   (r) => only.length === 0 || only.includes(r.slug.toLowerCase()) || only.includes(r.repo.toLowerCase()),
 );
 
@@ -187,9 +194,10 @@ for (const { slug, repo } of resources) {
 
 console.table(rows);
 
-// Drop stats for repositories no longer referenced by any resource.
-if (only.length === 0) {
-  const live = new Set(readResources().map((r) => r.repo));
+// Drop stats for repositories no longer referenced by any resource. Skip this
+// when anything failed, so a bad run never deletes good data.
+if (only.length === 0 && failures === 0) {
+  const live = new Set(allResources.map((r) => r.repo));
   for (const key of Object.keys(repos)) if (!live.has(key)) delete repos[key];
 }
 
