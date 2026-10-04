@@ -15,17 +15,18 @@ import { SITE } from '../data/site';
     </header>
     <div class="prose">
       <p class="lead">
-        Technical art is mostly shared in scattered places: GitHub repositories, itch.io pages, personal
-        blogs, tutorial projects and forum threads. Open Tech Art collects the good, freely licensed work
-        into one consistent, searchable catalog, and it always sends you back to the people who made it.
+        A lot of great technical art is shared openly on GitHub, but it's scattered across thousands of
+        repositories with inconsistent READMEs and few screenshots. Open Tech Art collects the good, openly
+        licensed work into one consistent, searchable catalog, and it always sends you back to the
+        repository and the people who made it.
       </p>
 
       <h2>What this is — and isn't</h2>
       <p>
         Open Tech Art is a <strong>curated resource library</strong>, not a marketplace. Nothing here is for
-        sale, nothing is ranked by popularity, and there are no accounts. Most entries point to resources
-        hosted elsewhere. For each one we add discovery, consistent metadata, screenshots, categorisation,
-        compatibility notes and a clear link to the original project.
+        sale, there are no ratings or paid placements, and there are no accounts. Every entry points to a
+        public GitHub repository. For each one we add discovery, consistent metadata, screenshots,
+        categorisation, compatibility notes and a clear link to the original project.
       </p>
       <p>
         The library starts with <strong>Unity URP</strong> shaders and rendering techniques, especially
@@ -35,7 +36,7 @@ import { SITE } from '../data/site';
 
       <h2>Selection criteria</h2>
       <ul>
-        <li>The project exists and is reachable at its original location.</li>
+        <li>The project lives in a <strong>public GitHub repository</strong>.</li>
         <li>It is <strong>free</strong> to obtain.</li>
         <li>
           It has an <strong>explicit open license</strong> that allows use and the display of its
@@ -49,6 +50,15 @@ import { SITE } from '../data/site';
         Every entry has a <em>catalog record</em>: the date it was checked, the revision that was checked,
         and notes on how. If something has changed upstream, please
         <a href={SITE.issuesUrl}>open an issue</a> or edit the entry directly.
+      </p>
+
+      <h2 id="github-stats">Stars, updates and featured picks</h2>
+      <p>
+        Each entry shows its repository's GitHub star count and the date of its latest commit, so you can
+        tell at a glance whether a project is popular and still maintained. You can sort the catalog by
+        either. <strong>Featured</strong> picks combine the two: well-starred repositories rank higher,
+        and that score fades the longer a repository goes without a commit. These numbers are refreshed
+        by a maintainer running a script, so they can be a little behind GitHub.
       </p>
 
       <h2 id="raw-reference-showcase">Raw → Reference → Showcase</h2>

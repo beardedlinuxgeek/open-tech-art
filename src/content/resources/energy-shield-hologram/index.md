@@ -4,6 +4,7 @@ summary: A modular sci-fi energy shield built as a single Shader Graph — edge 
 category: shaders
 type: shader
 tags: [hologram, sci-fi, shield, scanlines, intersection, fresnel, ripple, emissive]
+repo: daniel-ilett/shaders-stylised-shield
 creators:
   - name: Daniel Ilett
     url: https://danielilett.com
@@ -13,7 +14,6 @@ license:
   holder: Daniel Ilett
 links:
   project: https://github.com/daniel-ilett/shaders-stylised-shield
-platforms: [github]
 engine:
   name: unity
   testedVersions: ["2021.3.0f1 LTS"]
@@ -39,7 +39,6 @@ verification:
   revision: 1c12f30c44
   notes: MIT LICENSE file present at repository root. Unity and URP versions read from the README and ProjectSettings. Graph features confirmed by inspecting EnergyShield.shadergraph.
 added: 2026-10-04
-
 ---
 
 A stylised energy shield implemented as one Shader Graph with **modular, toggleable parts**, so you can keep the full effect or switch features off to make it cheaper.

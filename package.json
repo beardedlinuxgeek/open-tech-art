@@ -17,7 +17,8 @@
     "check:links:external": "node scripts/check-links.mjs --external",
     "check:images": "node scripts/check-images.mjs",
     "validate": "npm run build && npm run check:links && npm run check:images",
-    "astro": "astro"
+    "astro": "astro",
+    "update:github": "node scripts/update-github-stats.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

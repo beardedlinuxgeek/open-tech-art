@@ -8,6 +8,7 @@ import Gallery from '../../components/Gallery.astro';
 import Support from '../../components/Support.astro';
 import ResourceCard from '../../components/ResourceCard.astro';
 import { SITE } from '../../data/site';
+import { formatDay, formatMonth } from '../../lib/github';
 import {
   categoryUrl,
   coverImage,
@@ -17,7 +18,9 @@ import {
   implementationLabels,
   licenseInfo,
   pipelineLabels,
-  platformLabel,
+  projectUrl,
+  repoUrl,
+  statsOf,
   typeLabel,
   type Resource,
 } from '../../lib/resources';
@@ -41,7 +44,9 @@ const license = licenseInfo(r);
 const engine = d.engine;
 const pipelines = pipelineLabels(r);
 const impl = implementationLabels(r);
-const primaryPlatform = platformLabel(d.platforms[0]);
+const project = projectUrl(r);
+const projectIsRepo = project.replace(/\/$/, '').toLowerCase() === repoUrl(r).toLowerCase();
+const stats = statsOf(r);
 
 // The primary image is shown large; the rest go into the gallery. When both
 // raw and reference exist they get the comparison component instead.
@@ -56,10 +61,12 @@ const fmtDate = (date: Date) =>
   date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
 
 const secondaryLinks = [
-  d.links.source && d.links.source !== d.links.project
-    ? { label: 'Source code', url: d.links.source, icon: 'github' as const }
-    : undefined,
-  d.links.download && d.links.download !== d.links.project
+  !projectIsRepo
+    ? { label: 'GitHub repository', url: repoUrl(r), icon: 'github' as const }
+    : d.links.source && d.links.source !== project
+      ? { label: 'Source code', url: d.links.source, icon: 'github' as const }
+      : undefined,
+  d.links.download && d.links.download !== project
     ? { label: 'Download', url: d.links.download, icon: 'download' as const }
     : undefined,
   d.links.docs ? { label: 'Documentation', url: d.links.docs, icon: 'book' as const } : undefined,
@@ -86,7 +93,7 @@ const jsonLd = {
   name: d.title,
   description: d.summary,
   url: new URL(Astro.url.pathname, Astro.site).toString(),
-  sameAs: d.links.project,
+  sameAs: project,
   license: d.license.url,
   author: d.creators.map((c) => ({ '@type': 'Person', name: c.name, url: c.url })),
   keywords: d.tags.join(', '),
@@ -164,9 +171,9 @@ const jsonLd = {
           <p class="summary">{d.summary}</p>
 
           <div class="ctas">
-            <a class="btn btn-primary btn-block" href={d.links.project} rel="noopener">
+            <a class="btn btn-primary btn-block" href={project} rel="noopener">
               View original project
-              <span class="host">on {primaryPlatform === 'Other' ? hostOf(d.links.project) : primaryPlatform}</span>
+              <span class="host">on {projectIsRepo ? 'GitHub' : hostOf(project)}</span>
               <Icon name="external" />
             </a>
             {
@@ -183,7 +190,42 @@ const jsonLd = {
             }
           </div>
 
+          {
+            stats?.archived && (
+              <p class="archived-note">
+                The creator has archived this repository. It is read-only and no longer maintained.
+              </p>
+            )
+          }
+
           <dl class="quick">
+            {
+              stats && (
+                <div>
+                  <dt>GitHub</dt>
+                  <dd class="gh-stats">
+                    {stats.stars !== null && (
+                      <span>
+                        <svg viewBox="0 0 16 16" aria-hidden="true">
+                          <path d="M8 1.2l2 4.1 4.5.6-3.3 3.2.8 4.5L8 11.5l-4 2.1.8-4.5L1.5 5.9 6 5.3z" />
+                        </svg>
+                        {stats.stars.toLocaleString('en-US')} {stats.stars === 1 ? 'star' : 'stars'}
+                      </span>
+                    )}
+                  </dd>
+                </div>
+              )
+            }
+            {
+              stats && (
+                <div>
+                  <dt>Last updated</dt>
+                  <dd>
+                    <time datetime={stats.lastCommit.toISOString()}>{formatMonth(stats.lastCommit)}</time>
+                  </dd>
+                </div>
+              )
+            }
             <div>
               <dt>License</dt>
               <dd>
@@ -330,8 +372,10 @@ const jsonLd = {
                 )
               }
               <div>
-                <dt>Published on</dt>
-                <dd>{d.platforms.map(platformLabel).join(', ')}</dd>
+                <dt>Repository</dt>
+                <dd>
+                  <a href={repoUrl(r)} rel="noopener">{d.repo}</a>
+                </dd>
               </div>
             </dl>
             {d.license.notes && <p class="note">{d.license.notes}</p>}
@@ -361,8 +405,8 @@ const jsonLd = {
             <h2>Links</h2>
             <ul class="links">
               <li>
-                <a href={d.links.project} rel="noopener">Original project</a>
-                <span>{hostOf(d.links.project)}</span>
+                <a href={project} rel="noopener">Original project</a>
+                <span>{hostOf(project)}</span>
               </li>
               {
                 secondaryLinks.map((l) => (
@@ -397,6 +441,31 @@ const jsonLd = {
                   )}
                 </dd>
               </div>
+              {
+                stats && (
+                  <div>
+                    <dt>Last commit</dt>
+                    <dd>
+                      <time datetime={stats.lastCommit.toISOString()}>{formatDay(stats.lastCommit)}</time>
+                      {stats.defaultBranch && (
+                        <>
+                          {' '}on <code>{stats.defaultBranch}</code>
+                        </>
+                      )}
+                    </dd>
+                  </div>
+                )
+              }
+              {
+                stats?.starsCheckedAt && (
+                  <div>
+                    <dt>Stats checked</dt>
+                    <dd>
+                      <time datetime={stats.starsCheckedAt.toISOString()}>{formatDay(stats.starsCheckedAt)}</time>
+                    </dd>
+                  </div>
+                )
+              }
               <div>
                 <dt>Added</dt>
                 <dd><time datetime={d.added.toISOString().slice(0, 10)}>{fmtDate(d.added)}</time></dd>
@@ -600,6 +669,24 @@ const jsonLd = {
     margin: 0;
     text-align: right;
     font-weight: 600;
+  }
+  .gh-stats span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .gh-stats svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+  .archived-note {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid color-mix(in srgb, var(--partial) 50%, transparent);
+    background: color-mix(in srgb, var(--partial) 10%, transparent);
+    font-size: 0.88rem;
   }
   .hosted-note {
     margin: 14px 0 0;

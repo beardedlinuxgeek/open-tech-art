@@ -2,8 +2,8 @@
 
 **An open library of free technical-art resources.**
 
-Open Tech Art is a curated catalog of free, openly licensed technical-art resources: shaders,
-renderer features, tools and reference scenes. Each entry has consistent metadata, honest
+Open Tech Art is a curated catalog of free, openly licensed technical-art resources hosted on
+**GitHub**: shaders, renderer features, tools and reference scenes. Each entry has consistent metadata, honest
 compatibility information, screenshots and a prominent link back to the original creator. Think of
 Poly Haven, but for technical art. It is a library, not a marketplace.
 
@@ -52,6 +52,7 @@ npm run dev        # http://localhost:4321
 | `npm run check:links:external` | Also request every external URL (needs network access) |
 | `npm run check:images` | Enforce image budgets for source and built images |
 | `npm run validate` | `build` + `check:links` + `check:images` |
+| `npm run update:github` | Refresh GitHub stars and last-commit dates for every resource (run manually; see below) |
 
 ## Project structure
 
@@ -69,8 +70,12 @@ npm run dev        # http://localhost:4321
 │   │       └── <slug>/       # One folder per resource
 │   │           ├── index.md  # Frontmatter metadata + Markdown documentation
 │   │           └── *.webp    # Images for this entry
+│   ├── data/
+│   │   ├── github-stats.json # Stars / last commit per repo (written by update:github)
+│   │   └── site.ts
 │   ├── lib/
 │   │   ├── taxonomy.ts       # Controlled vocabularies (types, implementations, licenses…)
+│   │   ├── github.ts         # Stats lookup + featured score
 │   │   └── resources.ts      # Query helpers
 │   ├── components/           # Catalog, ResourceCard, Gallery, Compare (Raw ↔ Reference)…
 │   ├── layouts/Base.astro
@@ -82,7 +87,7 @@ npm run dev        # http://localhost:4321
 │   │   ├── resources.json.ts         # Machine-readable catalog (/resources.json)
 │   │   ├── about.astro · contribute.astro · 404.astro · robots.txt.ts
 │   └── styles/global.css
-├── scripts/                  # check-links.mjs, check-images.mjs
+├── scripts/                  # update-github-stats.mjs, check-links.mjs, check-images.mjs
 ├── docs/
 │   ├── research.md           # Phase 1 research, architecture decisions, seed-content log
 │   └── templates/resource/   # Copy-paste starting point for a new entry
@@ -105,17 +110,17 @@ message.
 | `category` | ✓ | An id from `src/content/categories.yaml` |
 | `type` | ✓ | What it is: `shader`, `render-feature`, `post-processing`, `vfx-graph`, `toolkit`, `sample-project`, … |
 | `tags` | | Free-form, lowercase-kebab |
+| `repo` | ✓ | The GitHub repository, `owner/name`. Source of stars and last-commit date |
 | `creators[]` | ✓ | `name`, optional `url` and `role`. Always the original authors |
 | `license` | ✓ | `spdx` (from an allow-list), `url` to the license text, optional `holder` and `notes` |
-| `links` | ✓ | `project` (required, canonical page), optional `source`, `download`, `docs`, `extra[]` |
-| `platforms` | ✓ | Where it's published: `github`, `itch`, `gitlab`, `personal-site`, … |
+| `links` | | Optional `project` (defaults to the repository), `source`, `download`, `docs`, `extra[]` |
 | `engine` | | Optional block: `name`, `testedVersions`, `minVersion`, `renderPipelines`, `packages` |
 | `implementation` | | How it's built: `shader-graph`, `hlsl`, `vfx-graph`, `csharp`, `render-graph`, `dots`, … |
 | `compatibility` | | `vr` and `mobile`: `yes` / `partial` / `no` / `unknown` (default), plus `notes` |
 | `requirements` | | List of strings (inline `code` allowed) |
 | `images` | ✓ | `hero`, `reference`, `raw`, `gallery[]` (each `src` + `alt` + optional `caption`), `provenance` |
 | `verification` | ✓ | `date`, `revision`, `notes`: how the license and facts were checked |
-| `added`, `updated`, `featured`, `draft` | | Housekeeping |
+| `added`, `updated`, `draft` | | Housekeeping |
 
 Design choices worth knowing:
 
@@ -129,10 +134,48 @@ Design choices worth knowing:
   without JS, upgraded to an interactive slider with JS.
 - **Categories are data.** Add one to `categories.yaml`. Categories with no resources are hidden
   automatically.
-- Controlled vocabularies (types, implementations, pipelines, licenses, platforms) and their display
+- Controlled vocabularies (types, implementations, pipelines, licenses) and their display
   labels live in `src/lib/taxonomy.ts`. Adding a value there makes it valid everywhere.
 
 See [`docs/research.md`](docs/research.md) for the reasoning behind these choices.
+
+## GitHub stats: stars, last update and featured picks
+
+Every resource lives in a public GitHub repository (`repo:` in its frontmatter). Star counts,
+last-commit dates and the archived flag are stored in **`src/data/github-stats.json`**, keyed by
+repository, so the hand-written Markdown is never rewritten by tooling.
+
+Refresh them whenever you like. It isn't automatic:
+
+```bash
+GITHUB_TOKEN=ghp_yourtoken npm run update:github   # token optional, but raises the rate limit
+git add src/data/github-stats.json && git commit -m "Update GitHub stats"
+```
+
+- The script reads `repo:` from every `src/content/resources/*/index.md`. It asks the GitHub REST API
+  for stars, forks, archived state and the default branch, then reads the date of the latest commit
+  on that branch.
+- Without a token it uses `GH_TOKEN` or `gh auth token` if available. Unauthenticated, it gets 60
+  requests per hour, which covers about 30 resources.
+- If the API is unreachable or rate-limited, the last-commit date comes from a shallow `git clone`
+  instead, and the previous star count is kept.
+- It warns when a repository has been renamed or moved. Options: `--only <slug|owner/name,…>` and
+  `--dry-run`.
+- It prints a table with star changes since the last run.
+
+On the site, cards and resource pages show ★ stars and "Updated <month year>". The catalog can be
+sorted by **Featured**, **Most stars**, **Recently updated**, **Newest in library** or **Title**.
+
+**Featured** order (the default catalog sort, and the home page's Featured row) combines both
+signals, as implemented in `src/lib/github.ts`:
+
+```
+score = log10(stars + 1) × (0.25 + 0.75 × 0.5^(yearsSinceLastCommit / 2))
+```
+
+Popularity counts on a log scale. Recency halves every two years but never drops below a quarter,
+so well-loved older projects aren't buried. Archived repositories score half. "Now" is the
+`updatedAt` time in the stats file, so builds are reproducible.
 
 ## Adding a resource
 

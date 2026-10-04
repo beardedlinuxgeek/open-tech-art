@@ -4,6 +4,7 @@ summary: A grab-bag of ready-to-use URP Shader Graphs — cartoon water, toon sh
 category: shaders
 type: shader-collection
 tags: [water, toon, force-field, hologram, sci-fi, fog, wireframe, collection, stylized]
+repo: TinyPlay/URPShadersCollection
 creators:
   - name: TinyPlay
     url: https://github.com/TinyPlay
@@ -13,8 +14,6 @@ license:
   holder: TinyPlay
 links:
   project: https://github.com/TinyPlay/URPShadersCollection
-  download: https://tinyplay.itch.io/urp-shaders-collection-for-unity
-platforms: [github, itch]
 engine:
   name: unity
   renderPipelines: [urp]
@@ -33,11 +32,11 @@ images:
 verification:
   date: 2026-10-04
   revision: 6e663fffcc
-  notes: MIT LICENSE at repository root; the README calls the collection "open-source and can be used in your projects for free". Shader list confirmed against the Shaders folder. The itch.io listing was confirmed through search results only, because itch.io was not reachable from the verification environment.
+  notes: MIT LICENSE at repository root; the README calls the collection "open-source and can be used in your projects for free". Shader list confirmed against the Shaders folder.
 added: 2026-10-04
 ---
 
-A collection of shaders and Shader Graphs for the Universal Render Pipeline. It is published on GitHub and as a pay-what-you-want download on itch.io.
+A collection of shaders and Shader Graphs for the Universal Render Pipeline. It is free and open source on GitHub.
 
 ## Included
 

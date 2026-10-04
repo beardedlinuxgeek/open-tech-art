@@ -1,7 +1,7 @@
 ---
 import ResourceCard from './ResourceCard.astro';
 import Icon from './Icon.astro';
-import { countBy, type Resource } from '../lib/resources';
+import { countBy, statsOf, type Resource } from '../lib/resources';
 import {
   IMPLEMENTATIONS,
   LICENSES,
@@ -82,12 +82,18 @@ const facets: Facet[] = [
 ].filter((f) => f.options.length > 0 && !(hideCategoryFacet && f.key === 'category'));
 
 const TAGS_VISIBLE = 14;
-const sortData = resources.map((r, i) => ({
-  id: r.id,
-  featured: i,
-  added: r.data.added.getTime(),
-  title: r.data.title.toLowerCase(),
-}));
+// `resources` arrives in featured order (see getResources), so the index is the featured rank.
+const sortData = resources.map((r, i) => {
+  const stats = statsOf(r);
+  return {
+    id: r.id,
+    featured: i,
+    stars: stats?.stars ?? -1,
+    updated: stats?.lastCommit.getTime() ?? 0,
+    added: r.data.added.getTime(),
+    title: r.data.title.toLowerCase(),
+  };
+});
 ---
 
 <div class="catalog" data-catalog>
@@ -156,7 +162,9 @@ const sortData = resources.map((r, i) => ({
         <span>Sort</span>
         <select data-sort>
           <option value="featured">Featured</option>
-          <option value="added">Newest</option>
+          <option value="stars">Most stars</option>
+          <option value="updated">Recently updated</option>
+          <option value="added">Newest in library</option>
           <option value="title">Title A–Z</option>
         </select>
       </label>
@@ -186,7 +194,15 @@ const sortData = resources.map((r, i) => ({
 <script type="application/json" data-sort-data set:html={JSON.stringify(sortData)} />
 
 <script>
-  type SortRow = { id: string; featured: number; added: number; title: string };
+  type SortMode = 'featured' | 'stars' | 'updated' | 'added' | 'title';
+  type SortRow = {
+    id: string;
+    featured: number;
+    stars: number;
+    updated: number;
+    added: number;
+    title: string;
+  };
 
   function initCatalog(root: HTMLElement) {
     const form = root.querySelector<HTMLFormElement>('[data-filter-form]')!;
@@ -291,12 +307,14 @@ const sortData = resources.map((r, i) => ({
     }
 
     function sortCards() {
-      const mode = sortSelect.value as 'featured' | 'added' | 'title';
+      const mode = sortSelect.value as SortMode;
       const rank = new Map(sortRows.map((r) => [r.id, r]));
       const sorted = [...cards].sort((a, b) => {
         const ra = rank.get(a.dataset.resource!)!;
         const rb = rank.get(b.dataset.resource!)!;
-        if (mode === 'added') return rb.added - ra.added || ra.title.localeCompare(rb.title);
+        if (mode === 'stars') return rb.stars - ra.stars || ra.featured - rb.featured;
+        if (mode === 'updated') return rb.updated - ra.updated || ra.featured - rb.featured;
+        if (mode === 'added') return rb.added - ra.added || ra.featured - rb.featured;
         if (mode === 'title') return ra.title.localeCompare(rb.title);
         return ra.featured - rb.featured;
       });

@@ -1,9 +1,11 @@
 ---
 import { Image } from 'astro:assets';
+import { formatMonth, formatStars } from '../lib/github';
 import {
   coverImage,
   creatorNames,
   resourceUrl,
+  statsOf,
   techBadges,
   typeLabel,
   type Resource,
@@ -20,6 +22,7 @@ const { resource: r, eager = false, headingLevel: H = 'h3' } = Astro.props;
 const cover = coverImage(r);
 const creators = creatorNames(r);
 const badges = techBadges(r);
+const stats = statsOf(r);
 
 // Facet data for the client-side catalog filter.
 const facets = {
@@ -76,6 +79,25 @@ const searchText = [
     <p class="card-creator">
       <span class="visually-hidden">By </span>{creators.join(', ')}
     </p>
+    {
+      stats && (
+        <p class="card-stats">
+          {stats.stars !== null && (
+            <span class="stars" title={`${stats.stars} GitHub stars`}>
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 1.2l2 4.1 4.5.6-3.3 3.2.8 4.5L8 11.5l-4 2.1.8-4.5L1.5 5.9 6 5.3z" />
+              </svg>
+              {formatStars(stats.stars)}
+              <span class="visually-hidden"> stars</span>
+            </span>
+          )}
+          <span class="updated">
+            Updated <time datetime={stats.lastCommit.toISOString()}>{formatMonth(stats.lastCommit)}</time>
+          </span>
+          {stats.archived && <span class="archived">Archived</span>}
+        </p>
+      )
+    }
     <ul class="card-meta" aria-label="Technology">
       <li class="card-type">{typeLabel(r)}</li>
       {badges.map((b) => <li>{b}</li>)}
@@ -160,6 +182,32 @@ const searchText = [
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .card-stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin: 2px 0 0;
+    font-size: 0.8rem;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+  .stars svg {
+    width: 13px;
+    height: 13px;
+    fill: currentColor;
+  }
+  .archived {
+    font-weight: 600;
+    color: var(--partial);
   }
   .card-meta {
     list-style: none;

@@ -5,7 +5,6 @@ import {
   ENGINES,
   IMPLEMENTATIONS,
   LICENSES,
-  PLATFORMS,
   RENDER_PIPELINES,
   RESOURCE_TYPES,
   SUPPORT_VALUES,
@@ -48,6 +47,14 @@ const resources = defineCollection({
       type: z.enum(keysOf(RESOURCE_TYPES)),
       tags: z.array(z.string()).default([]),
 
+      /**
+       * The GitHub repository (`owner/name`) the resource lives in. Stars and
+       * last-commit dates are read from it by `npm run update:github`.
+       */
+      repo: z
+        .string()
+        .regex(/^[\w.-]+\/[\w.-]+$/, 'Use the GitHub "owner/name" form, e.g. Delt06/urp-toon-shader'),
+
       /** Original authors. Open Tech Art is never listed here. */
       creators: z
         .array(
@@ -68,19 +75,20 @@ const resources = defineCollection({
       }),
 
       links: z.object({
-        /** The canonical page for the resource. Always shown prominently. */
-        project: z.url(),
+        /**
+         * The canonical page for the resource. Defaults to the GitHub
+         * repository; set it only when a different page is canonical.
+         */
+        project: z.url().optional(),
         /** Where the source/files live, if different from `project`. */
         source: z.url().optional(),
-        /** Direct download (release page, package URL, itch page…), if distinct. */
+        /** Direct download (release, package URL, downloads branch…), if distinct. */
         download: z.url().optional(),
         /** Tutorial, article or documentation written by the creator. */
         docs: z.url().optional(),
         extra: z.array(z.object({ label: z.string(), url: z.url() })).default([]),
-      }),
-
-      /** Where the project is published, e.g. github, itch. First is primary. */
-      platforms: z.array(z.enum(keysOf(PLATFORMS))).min(1),
+      })
+      .default({ extra: [] }),
 
       /**
        * Engine-specific facts. Everything inside is optional so that
@@ -140,7 +148,6 @@ const resources = defineCollection({
 
       added: z.coerce.date(),
       updated: z.coerce.date().optional(),
-      featured: z.boolean().default(false),
       draft: z.boolean().default(false),
     });
   },

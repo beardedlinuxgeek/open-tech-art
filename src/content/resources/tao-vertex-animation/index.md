@@ -4,6 +4,7 @@ summary: A vertex-animation-texture (VAT) toolkit — an artist-facing baker tha
 category: tools
 type: toolkit
 tags: [vertex-animation, vat, crowd, baking, gpu-animation, instancing, dots, ecs, lod]
+repo: maxartz15/VertexAnimation
 creators:
   - name: Max Kruf
     url: https://www.maxartz15.com
@@ -20,7 +21,6 @@ links:
   extra:
     - label: Third-party notices
       url: https://github.com/maxartz15/VertexAnimation/blob/master/THIRD%20PARTY%20NOTICES.md
-platforms: [github]
 engine:
   name: unity
   minVersion: "2020.2.1f1"

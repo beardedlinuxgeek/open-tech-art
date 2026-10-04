@@ -4,6 +4,7 @@ summary: Drop-in Shader Graph sub-graphs for 2D/3D Perlin, Simplex, Voronoi (up 
 category: tools
 type: node-library
 tags: [procedural, noise, perlin, simplex, voronoi, 3d-noise, sub-graph, shader-graph-extension]
+repo: JimmyCushnie/Noisy-Nodes
 creators:
   - name: Jimmy Cushnie
     url: https://github.com/JimmyCushnie
@@ -20,7 +21,6 @@ links:
   extra:
     - label: Upstream noise code — keijiro/NoiseShader
       url: https://github.com/keijiro/NoiseShader
-platforms: [github]
 engine:
   name: unity
   minVersion: "2019.3"
