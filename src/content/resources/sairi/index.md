@@ -4,6 +4,7 @@ summary: An interactive "graphic poster" scene that blends anime toon shading, k
 category: reference-scenes
 type: sample-project
 tags: [anime, toon, ui, typography, polka-dot, masking, webgl, vroid, motion-design]
+repo: musicofmusix/sairi
 creators:
   - name: Joshua Jang
     url: https://github.com/musicofmusix
@@ -19,7 +20,6 @@ links:
       url: https://musicofmusix.github.io/sairi/
     - label: Companion project — bezierspline (Python)
       url: https://github.com/musicofmusix/bezierspline
-platforms: [github]
 engine:
   name: unity
   testedVersions: ["2021.3.15f1 LTS"]
@@ -51,7 +51,6 @@ verification:
   revision: 5cd37bdb07
   notes: MIT LICENSE at repository root. Unity version from the README and ProjectSettings, URP version from the manifest. Screenshots from the repository's ReadmeImages folder.
 added: 2026-10-04
-featured: true
 ---
 
 **Sairi** tries to close the gap between graphic posters, which look sophisticated but never move, and game UI, which is interactive but usually much plainer. It is a complete Unity scene, so you can study how several stylisation techniques combine in one frame.

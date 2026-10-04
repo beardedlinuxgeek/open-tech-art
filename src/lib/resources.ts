@@ -1,8 +1,8 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { featuredScore, repoStats } from './github';
 import {
   IMPLEMENTATIONS,
   LICENSES,
-  PLATFORMS,
   RENDER_PIPELINES,
   RESOURCE_TYPES,
   ENGINES,
@@ -24,9 +24,10 @@ export async function getResources(): Promise<Resource[]> {
       );
     }
   }
+  // Default order is "featured": recent, well-starred repositories first.
   return all.sort(
     (a, b) =>
-      Number(b.data.featured) - Number(a.data.featured) ||
+      scoreOf(b) - scoreOf(a) ||
       b.data.added.getTime() - a.data.added.getTime() ||
       a.data.title.localeCompare(b.data.title),
   );
@@ -41,6 +42,12 @@ export async function getActiveCategories(resources?: Resource[]) {
     .filter((c) => c.count > 0)
     .sort((a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title));
 }
+
+export const statsOf = (r: Resource) => repoStats(r.data.repo);
+export const scoreOf = (r: Resource) => featuredScore(statsOf(r));
+export const repoUrl = (r: Resource) => `https://github.com/${r.data.repo}`;
+/** Canonical project page: explicit `links.project`, else the repository. */
+export const projectUrl = (r: Resource) => r.data.links.project ?? repoUrl(r);
 
 /** Catalog image: hero → reference → first gallery image. */
 export function coverImage(r: Resource) {
@@ -66,7 +73,6 @@ export const implementationLabels = (r: Resource) =>
   r.data.implementation.map((i) => label(IMPLEMENTATIONS, i));
 export const engineLabel = (r: Resource) =>
   r.data.engine ? label(ENGINES, r.data.engine.name) : undefined;
-export const platformLabel = (p: string) => label(PLATFORMS, p);
 
 /** Short "Shader Graph · URP" style technology badges for cards. */
 export function techBadges(r: Resource): string[] {
@@ -96,9 +102,15 @@ export function toIndexRecord(r: Resource) {
     tags: r.data.tags,
     creators: creatorNames(r),
     license: r.data.license.spdx,
-    platforms: r.data.platforms,
+    repo: r.data.repo,
+    github: (() => {
+      const s = statsOf(r);
+      return s
+        ? { stars: s.stars, lastCommit: s.lastCommit.toISOString(), archived: s.archived }
+        : null;
+    })(),
     compatibility: { vr: r.data.compatibility.vr, mobile: r.data.compatibility.mobile },
-    links: r.data.links,
+    links: { ...r.data.links, project: projectUrl(r) },
     added: r.data.added.toISOString().slice(0, 10),
   };
 }

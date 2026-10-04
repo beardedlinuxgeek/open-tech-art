@@ -4,6 +4,7 @@ summary: A small URP project of stylised trees, bushes and grass with Shader Gra
 category: shaders
 type: shader
 tags: [foliage, wind, vertex-animation, grass, trees, stylized, toon, lod, mobile]
+repo: ProblematicToucan/stylized-vegetation
 creators:
   - name: Gamal Abdul Aziz
     url: https://github.com/ProblematicToucan
@@ -17,7 +18,6 @@ links:
   extra:
     - label: Custom lighting sub-graphs by Cyanilux
       url: https://github.com/Cyanilux/URP_ShaderGraphCustomLighting
-platforms: [github]
 engine:
   name: unity
   testedVersions: ["2020.3.36f1 LTS"]
@@ -41,7 +41,6 @@ verification:
   revision: e327e9b314
   notes: MIT LICENSE at repository root and stated in the README. Unity version from ProjectSettings, URP version from the manifest. Wind properties (WindDirection, WindSpeed, WindStrenght, WiggleOffset) confirmed in Grass_URP_LOD0.shadergraph.
 added: 2026-10-04
-featured: true
 ---
 
 A compact Unity project with stylised vegetation assets and their Shader Graphs. Each of the **tree leaves, bushes and grass** has two shader levels of detail (`LOD0` and a cheaper `LOD1`).

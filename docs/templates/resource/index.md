@@ -8,6 +8,7 @@ summary: One or two sentences (max 280 characters) describing what the resource 
 category: shaders            # an id from src/content/categories.yaml
 type: shader                 # see RESOURCE_TYPES in src/lib/taxonomy.ts
 tags: [procedural, stone, triplanar]
+repo: owner/repo             # the GitHub repository; stars & last commit come from here
 
 creators:
   - name: Original Creator
@@ -20,16 +21,14 @@ license:
   # holder: Original Creator            # optional, as written in the license
   # notes: Any third-party notices worth surfacing.
 
-links:
-  project: https://github.com/owner/repo   # canonical page — always required
-  # source: https://github.com/owner/repo  # if different from project
-  # download: https://owner.itch.io/thing  # if distinct
-  # docs: https://example.com/tutorial     # creator's tutorial or docs
-  # extra:
-  #   - label: Something else useful
-  #     url: https://example.com
-
-platforms: [github]          # github | gitlab | itch | personal-site | artstation | gumroad | asset-store | other
+# Optional. `project` defaults to https://github.com/<repo>.
+# links:
+#   project: https://example.com/canonical-page       # only if not the repository
+#   download: https://github.com/owner/repo/releases  # if distinct
+#   docs: https://example.com/tutorial                # creator's tutorial or docs
+#   extra:
+#     - label: Something else useful
+#       url: https://example.com
 
 # Omit `engine` entirely for engine-agnostic resources.
 engine:
@@ -73,7 +72,6 @@ verification:
   notes: How the license and facts were confirmed.
 
 added: 2026-01-01
-# featured: false
 # draft: true                           # hides the entry from the site
 ---
 

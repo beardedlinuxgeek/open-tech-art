@@ -8,13 +8,19 @@ import {
   coverImage,
   getActiveCategories,
   getResources,
+  statsOf,
 } from '../lib/resources';
 import { SITE } from '../data/site';
 
 const resources = await getResources();
 const categories = await getActiveCategories(resources);
 const creatorCount = new Set(resources.flatMap((r) => r.data.creators.map((c) => c.name))).size;
-const latest = resources.slice(0, 8);
+// getResources() is already in featured order: recent, well-starred repos first.
+const featured = resources.slice(0, 4);
+const recentlyUpdated = resources
+  .filter((r) => !featured.includes(r) && statsOf(r))
+  .sort((a, b) => statsOf(b)!.lastCommit.getTime() - statsOf(a)!.lastCommit.getTime())
+  .slice(0, 4);
 
 // A representative image per category: its first (featured-first) resource.
 const catCovers = categories.map((c) => {
@@ -23,10 +29,7 @@ const catCovers = categories.map((c) => {
 });
 
 // Mosaic for the hero: a few featured covers.
-const mosaic = resources
-  .filter((r) => r.data.featured)
-  .concat(resources.filter((r) => !r.data.featured))
-  .slice(0, 4)
+const mosaic = featured
   .map((r) => ({ r, img: coverImage(r) }))
   .filter((m) => m.img);
 ---
@@ -102,15 +105,37 @@ const mosaic = resources
       </ul>
     </section>
 
-    <section class="block" aria-labelledby="latest-title">
+    <section class="block" aria-labelledby="featured-title">
       <div class="block-head">
-        <h2 id="latest-title">In the library</h2>
+        <div>
+          <h2 id="featured-title">Featured</h2>
+          <p class="block-sub">Well-starred projects that are still actively updated.</p>
+        </div>
         <a href="/resources/" class="more">Browse &amp; filter <Icon name="arrow-right" /></a>
       </div>
       <div class="grid">
-        {latest.map((r) => <ResourceCard resource={r} />)}
+        {featured.map((r) => <ResourceCard resource={r} />)}
       </div>
     </section>
+
+    {
+      recentlyUpdated.length > 0 && (
+        <section class="block" aria-labelledby="updated-title">
+          <div class="block-head">
+            <div>
+              <h2 id="updated-title">Recently updated</h2>
+              <p class="block-sub">Ordered by the latest commit to each repository.</p>
+            </div>
+            <a href="/resources/?sort=updated" class="more">
+              See all <Icon name="arrow-right" />
+            </a>
+          </div>
+          <div class="grid">
+            {recentlyUpdated.map((r) => <ResourceCard resource={r} />)}
+          </div>
+        </section>
+      )
+    }
 
     <section class="block principles" aria-labelledby="principles-title">
       <h2 id="principles-title">How the library works</h2>
@@ -289,6 +314,11 @@ const mosaic = resources
   .block h2 {
     font-size: clamp(1.35rem, 2.2vw, 1.7rem);
     margin: 0;
+  }
+  .block-sub {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+    font-size: 0.92rem;
   }
   .more {
     display: inline-flex;

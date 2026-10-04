@@ -21,12 +21,14 @@ A pull request should touch exactly one folder per resource.
 
 A resource must be:
 
-1. **Real and reachable.** The project exists at the linked location.
+1. **On GitHub.** The project lives in a public GitHub repository, recorded as `repo: owner/name`.
+   We don't list resources that are only distributed through other sites (itch.io, ArtStation,
+   Gumroad, asset stores).
 2. **Free.** No payment is required to obtain it.
 3. **Openly licensed.** It has an explicit license that allows use and the display of its screenshots.
    We prefer MIT, BSD, Apache 2.0, CC0, CC BY, the Unlicense, or something equally clear.
-   - Free of charge is **not** open source. An Asset Store, ArtStation or Gumroad item at $0
-     without an open license does not qualify.
+   - Free of charge is **not** open source. A public repository without an open license does
+     not qualify.
    - **Ambiguous licensing means exclusion.** This includes a missing license file, extra
      conditions in a README that contradict the license, or a copied license naming someone else.
      Don't try to reason around it.
@@ -36,8 +38,11 @@ A resource must be:
 ## Attribution and honesty
 
 - Credit the **original creators** in `creators`. Open Tech Art never appears there.
-- `links.project` must point to the original project page. Don't link to forks or mirrors unless
-  the original is gone, and say so if that's the case.
+- `repo` must be the original repository, not a fork or mirror, unless the original is gone. Say so
+  if that's the case. `links.project` defaults to the repository and only needs setting when a
+  different page is canonical.
+- After adding an entry, run `npm run update:github -- --only <slug>` to record its stars and
+  last-commit date in `src/data/github-stats.json`.
 - Record the license accurately (`license.spdx` and `license.url`). Surface third-party notices in
   `license.notes`.
 - **Don't fabricate compatibility.** Record versions, pipelines and VR or mobile support only when
@@ -93,4 +98,5 @@ than rigid standardisation.
 - [ ] Screenshots are allowed under the license, web-optimized and have alt text
 - [ ] No guessed compatibility; unknowns stay `unknown`
 - [ ] `verification` filled in
+- [ ] `repo` set and GitHub stats recorded (`npm run update:github -- --only <slug>`)
 - [ ] `npm run validate` passes

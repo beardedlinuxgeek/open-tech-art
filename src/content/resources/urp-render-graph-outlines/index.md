@@ -4,6 +4,7 @@ summary: A screen-space outline renderer feature updated for Unity 6 and URP's R
 category: rendering
 type: render-feature
 tags: [outline, screen-space, edge-detection, render-graph, renderer-feature, depth-normals, unity-6]
+repo: Chishikii/URP-Render-Features
 creators:
   - name: Finn Pelzer
     url: https://github.com/Chishikii
@@ -20,7 +21,6 @@ links:
       url: https://github.com/Robinseibold/Unity-URP-Outlines
     - label: Original technique write-up by Erik Roystan Ross
       url: https://roystan.net/articles/outline-shader.html
-platforms: [github]
 engine:
   name: unity
   testedVersions: ["6000.2.9f1"]

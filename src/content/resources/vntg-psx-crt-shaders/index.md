@@ -4,21 +4,20 @@ summary: PSX-era materials and CRT/VHS post-processing for Unity 6 URP — verte
 category: rendering
 type: post-processing
 tags: [psx, retro, crt, vhs, dithering, color-palette, pixelation, vertex-snapping, affine, fog, render-graph, unity-6]
+repo: Colby-O2/VNTG
 creators:
   - name: Colby-O
-    url: https://colby-o.itch.io
+    url: https://github.com/Colby-O2
 license:
   spdx: Unlicense
   url: https://github.com/Colby-O2/VNTG/blob/master/LICENSE.md
   notes: Public-domain dedication. The PSX lighting HLSL is adapted from Codrin-Mihail's MIT-licensed URP-PSX; see THIRD_PARTY_NOTICE.md in the project.
 links:
-  project: https://colby-o.itch.io/vntg-shaders
-  source: https://github.com/Colby-O2/VNTG
+  project: https://github.com/Colby-O2/VNTG
   download: https://github.com/Colby-O2/VNTG/tree/downloads
   extra:
     - label: Third-party notice
       url: https://github.com/Colby-O2/VNTG/blob/master/THIRD_PARTY_NOTICE.md
-platforms: [itch, github]
 engine:
   name: unity
   minVersion: "6000.0"
@@ -58,10 +57,9 @@ verification:
   revision: 7faf53d5bb
   notes: Unlicense text in LICENSE.md; the README restates the Unlicense. Compatibility statements quoted from the README. Images are from the repository's Videos folder; animated GIFs were reduced to still frames.
 added: 2026-10-04
-featured: true
 ---
 
-VNTG is a pack of PSX-inspired material shaders and CRT post-processing for **Unity 6 URP**, built on Render Graph. Its creator developed it across several game jams and uses it in their own itch.io releases.
+VNTG is a pack of PSX-inspired material shaders and CRT post-processing for **Unity 6 URP**, built on Render Graph. Its creator developed it across several game jams and has used it in their own released games.
 
 ## PSX PBR material
 

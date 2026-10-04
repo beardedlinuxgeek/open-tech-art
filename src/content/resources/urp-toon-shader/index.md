@@ -4,6 +4,7 @@ summary: A full-featured, hand-written toon shader for URP — ramp lighting, ad
 category: shaders
 type: shader
 tags: [toon, cel-shading, stylized, outline, inverted-hull, ramp, rim-light, mobile]
+repo: Delt06/urp-toon-shader
 creators:
   - name: Vladislav Kantaev
     url: https://github.com/Delt06
@@ -18,7 +19,6 @@ links:
   extra:
     - label: Successor project — Toon RP
       url: https://github.com/Delt06/toon-rp
-platforms: [github]
 engine:
   name: unity
   testedVersions: ["2021.3.0f1 LTS", "2020.3 LTS"]
@@ -53,7 +53,6 @@ verification:
   revision: 6981f7dc93
   notes: MIT LICENSE.md at repository root. Versions taken from the README ("Developed and verified with Unity 2021.3.0f1 LTS and URP package v12.1.6"). Screenshots are from the repository's Showcase folder.
 added: 2026-10-04
-featured: true
 ---
 
 A toon shader for the Universal Render Pipeline written in HLSL. It covers far more of URP's lighting than most toon shaders: additional lights with shadows, light probes and lightmaps, reflection probes, SSAO and screen-space shadows. It stays **SRP Batcher** and **GPU instancing** compatible.

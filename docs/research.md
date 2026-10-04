@@ -1,5 +1,11 @@
 # Phase 1 — Research & architecture notes
 
+> **Policy update (Oct 2026): GitHub only.** The library now lists only resources hosted in public
+> GitHub repositories. itch.io, ArtStation, Gumroad and asset-store distribution is out of scope.
+> Each entry records `repo: owner/name`, and `npm run update:github` tracks its stars and last
+> commit (see the README). References to other platforms below describe the original Phase 1
+> research.
+
 These notes record what informed the first version of Open Tech Art: the
 patterns taken from existing resource libraries, the technology choices, and
 the seed-content research log (including what was **excluded** and why).

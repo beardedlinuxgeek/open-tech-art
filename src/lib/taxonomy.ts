@@ -62,18 +62,6 @@ export const SUPPORT_VALUES = {
   unknown: 'Unknown',
 } as const;
 
-/** Where the canonical project page lives. */
-export const PLATFORMS = {
-  github: 'GitHub',
-  gitlab: 'GitLab',
-  itch: 'itch.io',
-  'personal-site': 'Personal site',
-  artstation: 'ArtStation',
-  gumroad: 'Gumroad',
-  'asset-store': 'Unity Asset Store',
-  other: 'Other',
-} as const;
-
 /** Licenses we currently accept, keyed by SPDX identifier. */
 export const LICENSES = {
   MIT: { name: 'MIT License', url: 'https://opensource.org/license/mit' },
