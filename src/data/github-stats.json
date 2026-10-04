@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-04T10:13:19.000Z",
+  "updatedAt": "2026-10-04T10:20:20.508Z",
   "repos": {
     "Anatta336/driven-decals": {
       "stars": 608,
@@ -7,8 +7,8 @@
       "lastCommit": "2024-06-09T21:06:01.000Z",
       "defaultBranch": "master",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "bearworks/URPSeaCloudFog": {
       "stars": 54,
@@ -16,8 +16,8 @@
       "lastCommit": "2026-10-01T06:15:53.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "blurfeng/blur-toon-urp": {
       "stars": 17,
@@ -25,8 +25,8 @@
       "lastCommit": "2026-07-23T14:42:31.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "Chishikii/URP-Render-Features": {
       "stars": 97,
@@ -34,8 +34,8 @@
       "lastCommit": "2025-12-01T20:52:42.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T09:52:06.715Z",
-      "commitCheckedAt": "2026-10-04T09:52:06.715Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "Colby-O2/VNTG": {
       "stars": 20,
@@ -43,8 +43,8 @@
       "lastCommit": "2026-09-02T20:55:02.000Z",
       "defaultBranch": "master",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T09:52:06.715Z",
-      "commitCheckedAt": "2026-10-04T09:52:06.715Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "CristianQiu/Unity-URP-Outline": {
       "stars": 111,
@@ -52,8 +52,8 @@
       "lastCommit": "2026-03-28T14:33:24.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "CristianQiu/Unity-URP-Volumetric-Light": {
       "stars": 923,
@@ -61,8 +61,8 @@
       "lastCommit": "2026-09-07T14:48:23.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "Cyanilux/URP_RetroCRTShader": {
       "stars": 260,
@@ -70,8 +70,8 @@
       "lastCommit": "2025-09-27T18:00:55.000Z",
       "defaultBranch": "master",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "CyberAgentGameEntertainment/AirSticker": {
       "stars": 333,
@@ -79,8 +79,8 @@
       "lastCommit": "2026-08-12T09:05:00.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "daniel-ilett/blur-pro-urp": {
       "stars": 16,
@@ -88,8 +88,8 @@
       "lastCommit": "2026-04-22T15:09:28.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "daniel-ilett/shaders-dither-transparency": {
       "stars": 11,
@@ -97,8 +97,8 @@
       "lastCommit": "2024-04-02T13:39:56.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "daniel-ilett/shaders-sketched": {
       "stars": 16,
@@ -106,8 +106,8 @@
       "lastCommit": "2024-09-27T15:16:00.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "daniel-ilett/shaders-stylised-shield": {
       "stars": 20,
@@ -115,8 +115,8 @@
       "lastCommit": "2023-02-06T16:10:58.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T09:52:06.715Z",
-      "commitCheckedAt": "2026-10-04T09:52:06.715Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "Delt06/urp-toon-shader": {
       "stars": 471,
@@ -124,8 +124,8 @@
       "lastCommit": "2023-11-16T14:37:49.000Z",
       "defaultBranch": "master",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T09:52:06.715Z",
-      "commitCheckedAt": "2026-10-04T09:52:06.715Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "End3r6/URPUnderwaterEffects": {
       "stars": 77,
@@ -133,8 +133,8 @@
       "lastCommit": "2026-09-30T23:08:35.000Z",
       "defaultBranch": "master",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "Estradel/URP-Simple-Per-Object-Motion-Blur": {
       "stars": 93,
@@ -142,8 +142,8 @@
       "lastCommit": "2024-02-11T22:26:36.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "jiaozi158/ShellFurURP": {
       "stars": 262,
@@ -151,8 +151,8 @@
       "lastCommit": "2024-08-28T05:32:15.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "jiaozi158/UnityPhysicallyBasedSkyURP": {
       "stars": 153,
@@ -160,8 +160,8 @@
       "lastCommit": "2025-05-16T19:24:48.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "jiaozi158/UnitySSGIURP": {
       "stars": 456,
@@ -169,8 +169,8 @@
       "lastCommit": "2025-06-01T06:14:05.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "jiaozi158/UnityVolumetricCloudsURP": {
       "stars": 519,
@@ -178,8 +178,8 @@
       "lastCommit": "2025-05-16T19:25:09.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "JimmyCushnie/Noisy-Nodes": {
       "stars": 736,
@@ -187,8 +187,8 @@
       "lastCommit": "2026-01-01T21:23:03.000Z",
       "defaultBranch": "master",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T09:52:06.715Z",
-      "commitCheckedAt": "2026-10-04T09:52:06.715Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "maxartz15/VertexAnimation": {
       "stars": 499,
@@ -196,8 +196,8 @@
       "lastCommit": "2021-06-24T19:04:49.000Z",
       "defaultBranch": "master",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T09:52:06.715Z",
-      "commitCheckedAt": "2026-10-04T09:52:06.715Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "meryuhi/URPFog": {
       "stars": 143,
@@ -205,8 +205,8 @@
       "lastCommit": "2026-04-19T14:31:52.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "musicofmusix/sairi": {
       "stars": 7,
@@ -214,8 +214,8 @@
       "lastCommit": "2022-12-13T08:29:31.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T09:52:06.715Z",
-      "commitCheckedAt": "2026-10-04T09:52:06.715Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "ProblematicToucan/stylized-vegetation": {
       "stars": 18,
@@ -223,8 +223,8 @@
       "lastCommit": "2022-08-01T16:14:02.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T09:52:06.715Z",
-      "commitCheckedAt": "2026-10-04T09:52:06.715Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "RobProductions/OpenGraphGUI": {
       "stars": 31,
@@ -232,8 +232,8 @@
       "lastCommit": "2023-12-14T18:29:20.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "sinnwrig/URP-Atmosphere": {
       "stars": 81,
@@ -241,8 +241,8 @@
       "lastCommit": "2023-11-14T07:56:55.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "sinnwrig/URP-Fog-Volumes": {
       "stars": 241,
@@ -250,8 +250,8 @@
       "lastCommit": "2026-01-23T02:03:17.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "tantaneity/unity-urp-outline-postprocess": {
       "stars": 30,
@@ -259,8 +259,8 @@
       "lastCommit": "2026-01-07T10:47:42.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     },
     "TinyPlay/URPShadersCollection": {
       "stars": 32,
@@ -268,17 +268,8 @@
       "lastCommit": "2023-02-10T18:34:06.000Z",
       "defaultBranch": "main",
       "archived": false,
-      "starsCheckedAt": "2026-10-04T09:52:06.715Z",
-      "commitCheckedAt": "2026-10-04T09:52:06.715Z"
-    },
-    "wave-harmonic/crest": {
-      "stars": 3900,
-      "forks": 522,
-      "lastCommit": "2026-06-18T05:59:07.000Z",
-      "defaultBranch": "master",
-      "archived": false,
-      "starsCheckedAt": "2026-10-04T10:13:19.000Z",
-      "commitCheckedAt": "2026-10-04T10:13:19.000Z"
+      "starsCheckedAt": "2026-10-04T10:20:20.508Z",
+      "commitCheckedAt": "2026-10-04T10:20:20.508Z"
     }
   }
 }
