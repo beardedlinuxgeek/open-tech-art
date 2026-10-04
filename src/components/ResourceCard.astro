@@ -1,0 +1,185 @@
+---
+import { Image } from 'astro:assets';
+import {
+  coverImage,
+  creatorNames,
+  resourceUrl,
+  techBadges,
+  typeLabel,
+  type Resource,
+} from '../lib/resources';
+
+interface Props {
+  resource: Resource;
+  /** Eager-load images for the first visible row. */
+  eager?: boolean;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { resource: r, eager = false, headingLevel: H = 'h3' } = Astro.props;
+const cover = coverImage(r);
+const creators = creatorNames(r);
+const badges = techBadges(r);
+
+// Facet data for the client-side catalog filter.
+const facets = {
+  category: r.data.category.id,
+  type: r.data.type,
+  implementation: r.data.implementation.join(' '),
+  pipeline: (r.data.engine?.renderPipelines ?? []).join(' '),
+  license: r.data.license.spdx,
+  tags: r.data.tags.join(' '),
+};
+const searchText = [
+  r.data.title,
+  r.data.summary,
+  creators.join(' '),
+  r.data.tags.join(' '),
+  typeLabel(r),
+  badges.join(' '),
+]
+  .join(' ')
+  .toLowerCase();
+---
+
+<article
+  class="card"
+  data-resource={r.id}
+  data-category={facets.category}
+  data-type={facets.type}
+  data-implementation={facets.implementation}
+  data-pipeline={facets.pipeline}
+  data-license={facets.license}
+  data-tags={facets.tags}
+  data-search={searchText}
+>
+  <a class="card-media" href={resourceUrl(r)} tabindex="-1" aria-hidden="true">
+    {
+      cover ? (
+        <Image
+          src={cover.src}
+          alt=""
+          widths={[360, 560, 800]}
+          sizes="(max-width: 600px) 100vw, (max-width: 1100px) 50vw, 380px"
+          loading={eager ? 'eager' : 'lazy'}
+          fetchpriority={eager ? 'high' : 'auto'}
+          format="webp"
+          quality={78}
+        />
+      ) : (
+        <span class="card-noimg">No image</span>
+      )
+    }
+  </a>
+  <div class="card-body">
+    <H class="card-title"><a href={resourceUrl(r)}>{r.data.title}</a></H>
+    <p class="card-creator">
+      <span class="visually-hidden">By </span>{creators.join(', ')}
+    </p>
+    <ul class="card-meta" aria-label="Technology">
+      <li class="card-type">{typeLabel(r)}</li>
+      {badges.map((b) => <li>{b}</li>)}
+    </ul>
+  </div>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.2s,
+      transform 0.2s;
+  }
+  .card:hover,
+  .card:focus-within {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow);
+  }
+  .card-media {
+    display: block;
+    aspect-ratio: 16 / 10;
+    background: var(--img-bg);
+    overflow: hidden;
+  }
+  .card-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+  }
+  .card:hover .card-media :global(img) {
+    transform: scale(1.025);
+  }
+  .card-noimg {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    color: var(--ink-3);
+    font-size: 0.85rem;
+  }
+  .card-body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+  .card-title {
+    font-size: 1.02rem;
+    font-weight: 650;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .card-title a {
+    text-decoration: none;
+  }
+  /* Whole card is clickable via the title link. */
+  .card-title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .card-title a:focus-visible {
+    outline: none;
+  }
+  .card:has(.card-title a:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .card-creator {
+    margin: 0;
+    color: var(--ink-3);
+    font-size: 0.88rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-meta {
+    list-style: none;
+    margin: auto 0 0;
+    padding: 10px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .card-meta li {
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1;
+    padding: 0.42em 0.6em;
+    border-radius: 4px;
+    background: var(--bg-sunken);
+    color: var(--ink-2);
+  }
+  .card-meta .card-type {
+    background: var(--accent-soft);
+    color: color-mix(in srgb, var(--accent) 80%, var(--ink));
+  }
+</style>

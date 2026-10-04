@@ -1,0 +1,26 @@
+# Top-level resource areas. Add an entry here before using it in a resource.
+# Categories without any published resources are not shown on the site.
+- id: shaders
+  title: Shaders
+  description: Materials and surface shaders — Shader Graph and hand-written HLSL.
+  order: 10
+- id: rendering
+  title: Rendering
+  description: Renderer features, post-processing and techniques that change how a frame is drawn.
+  order: 20
+- id: vfx
+  title: VFX
+  description: Particle systems, VFX Graph effects and other visual effects.
+  order: 30
+- id: lighting
+  title: Lighting
+  description: Lighting setups, custom lighting models and baking workflows.
+  order: 40
+- id: tools
+  title: Tools
+  description: Editor utilities, bakers and node libraries that help build technical art.
+  order: 50
+- id: reference-scenes
+  title: Reference Scenes
+  description: Complete scenes and sample projects that show techniques working together.
+  order: 60

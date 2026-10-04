@@ -1,0 +1,727 @@
+---
+import ResourceCard from './ResourceCard.astro';
+import Icon from './Icon.astro';
+import { countBy, type Resource } from '../lib/resources';
+import {
+  IMPLEMENTATIONS,
+  LICENSES,
+  RENDER_PIPELINES,
+  RESOURCE_TYPES,
+  label,
+} from '../lib/taxonomy';
+import { getCollection } from 'astro:content';
+import { SITE } from '../data/site';
+
+interface Props {
+  resources: Resource[];
+  /** Hide the category facet (used on category pages). */
+  hideCategoryFacet?: boolean;
+  headingId?: string;
+}
+
+const { resources, hideCategoryFacet = false, headingId } = Astro.props;
+
+const categories = await getCollection('categories');
+const catTitle = (id: string) => categories.find((c) => c.id === id)?.data.title ?? id;
+const catOrder = (id: string) => categories.find((c) => c.id === id)?.data.order ?? 999;
+
+type Option = { value: string; label: string; count: number };
+type Facet = { key: string; title: string; options: Option[]; collapsible?: boolean };
+
+const toOptions = (counts: Map<string, number>, toLabel: (v: string) => string): Option[] =>
+  [...counts].map(([value, count]) => ({ value, label: toLabel(value), count }));
+
+const byCount = (a: Option, b: Option) => b.count - a.count || a.label.localeCompare(b.label);
+
+const facets: Facet[] = [
+  {
+    key: 'category',
+    title: 'Category',
+    options: toOptions(countBy(resources.map((r) => [r.data.category.id])), catTitle).sort(
+      (a, b) => catOrder(a.value) - catOrder(b.value),
+    ),
+  },
+  {
+    key: 'type',
+    title: 'Resource type',
+    options: toOptions(countBy(resources.map((r) => [r.data.type])), (v) =>
+      label(RESOURCE_TYPES, v),
+    ).sort(byCount),
+  },
+  {
+    key: 'implementation',
+    title: 'Implementation',
+    options: toOptions(countBy(resources.map((r) => r.data.implementation)), (v) =>
+      label(IMPLEMENTATIONS, v),
+    ).sort(byCount),
+  },
+  {
+    key: 'pipeline',
+    title: 'Render pipeline',
+    options: toOptions(
+      countBy(resources.map((r) => r.data.engine?.renderPipelines ?? [])),
+      (v) => label(RENDER_PIPELINES, v),
+    ).sort(byCount),
+  },
+  {
+    key: 'license',
+    title: 'License',
+    options: toOptions(
+      countBy(resources.map((r) => [r.data.license.spdx])),
+      (v) => LICENSES[v as keyof typeof LICENSES]?.name ?? v,
+    ).sort(byCount),
+  },
+  {
+    key: 'tags',
+    title: 'Tags',
+    collapsible: true,
+    options: toOptions(countBy(resources.map((r) => r.data.tags)), (v) => v.replaceAll('-', ' ')).sort(
+      byCount,
+    ),
+  },
+].filter((f) => f.options.length > 0 && !(hideCategoryFacet && f.key === 'category'));
+
+const TAGS_VISIBLE = 14;
+const sortData = resources.map((r, i) => ({
+  id: r.id,
+  featured: i,
+  added: r.data.added.getTime(),
+  title: r.data.title.toLowerCase(),
+}));
+---
+
+<div class="catalog" data-catalog>
+  <aside class="filters" id="catalog-filters" aria-label="Filters" data-filters>
+    <div class="filters-head">
+      <h2 class="filters-title">Filter</h2>
+      <button type="button" class="icon-btn filters-close" data-close-filters aria-label="Close filters">
+        <Icon name="close" />
+      </button>
+    </div>
+
+    <form class="filters-form" data-filter-form role="search" onsubmit="return false">
+      <label class="search">
+        <span class="visually-hidden">Search resources</span>
+        <Icon name="search" class="search-icon" />
+        <input
+          type="search"
+          name="q"
+          placeholder="Search resources"
+          autocomplete="off"
+          spellcheck="false"
+          data-search-input
+        />
+      </label>
+
+      {
+        facets.map((facet) => (
+          <fieldset class="facet" data-facet={facet.key}>
+            <legend>{facet.title}</legend>
+            <ul class:list={['facet-options', { 'is-tags': facet.key === 'tags' }]}>
+              {facet.options.map((o, i) => (
+                <li hidden={facet.collapsible && i >= TAGS_VISIBLE ? true : undefined} data-extra={facet.collapsible && i >= TAGS_VISIBLE ? '' : undefined}>
+                  <label class="option">
+                    <input type="checkbox" name={facet.key} value={o.value} />
+                    <span class="option-label">{o.label}</span>
+                    <span class="option-count" data-count-for={`${facet.key}:${o.value}`}>
+                      {o.count}
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+            {facet.collapsible && facet.options.length > TAGS_VISIBLE && (
+              <button type="button" class="facet-more" data-more aria-expanded="false">
+                Show all {facet.options.length} tags
+              </button>
+            )}
+          </fieldset>
+        ))
+      }
+    </form>
+    <div class="filters-foot">
+      <button type="button" class="btn btn-primary" data-close-filters data-show-results>Show results</button>
+    </div>
+  </aside>
+
+  <section class="results" aria-labelledby={headingId}>
+    <div class="toolbar">
+      <button type="button" class="btn filters-open" data-open-filters aria-controls="catalog-filters" aria-expanded="false">
+        <Icon name="filter" /> Filters <span class="active-count" data-active-count hidden></span>
+      </button>
+      <p class="result-count" aria-live="polite" data-result-count>
+        {resources.length} {resources.length === 1 ? 'resource' : 'resources'}
+      </p>
+      <label class="sort">
+        <span>Sort</span>
+        <select data-sort>
+          <option value="featured">Featured</option>
+          <option value="added">Newest</option>
+          <option value="title">Title A–Z</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="active-filters" data-active-filters hidden>
+      <ul data-active-list></ul>
+      <button type="button" class="clear" data-clear>Clear all</button>
+    </div>
+
+    <div class="grid" data-grid>
+      {resources.map((r, i) => <ResourceCard resource={r} eager={i < 3} />)}
+    </div>
+
+    <div class="empty" data-empty hidden>
+      <h3>No resources match those filters.</h3>
+      <p>
+        Try removing a filter or a search term. Know a resource that belongs here?
+        <a href={SITE.newResourceUrl}>Suggest it</a>.
+      </p>
+      <button type="button" class="btn" data-clear>Clear filters</button>
+    </div>
+  </section>
+  <div class="filters-backdrop" data-close-filters hidden></div>
+</div>
+
+<script type="application/json" data-sort-data set:html={JSON.stringify(sortData)} />
+
+<script>
+  type SortRow = { id: string; featured: number; added: number; title: string };
+
+  function initCatalog(root: HTMLElement) {
+    const form = root.querySelector<HTMLFormElement>('[data-filter-form]')!;
+    const search = root.querySelector<HTMLInputElement>('[data-search-input]')!;
+    const grid = root.querySelector<HTMLElement>('[data-grid]')!;
+    const cards = [...grid.querySelectorAll<HTMLElement>('.card')];
+    const countEl = root.querySelector<HTMLElement>('[data-result-count]')!;
+    const emptyEl = root.querySelector<HTMLElement>('[data-empty]')!;
+    const activeWrap = root.querySelector<HTMLElement>('[data-active-filters]')!;
+    const activeList = root.querySelector<HTMLElement>('[data-active-list]')!;
+    const activeCount = root.querySelector<HTMLElement>('[data-active-count]')!;
+    const sortSelect = root.querySelector<HTMLSelectElement>('[data-sort]')!;
+    const panel = root.querySelector<HTMLElement>('[data-filters]')!;
+    const openBtn = root.querySelector<HTMLButtonElement>('[data-open-filters]')!;
+    const backdrop = root.querySelector<HTMLElement>('.filters-backdrop')!;
+    const showBtn = root.querySelector<HTMLButtonElement>('[data-show-results]');
+    const sortRows: SortRow[] = JSON.parse(
+      document.querySelector('[data-sort-data]')?.textContent ?? '[]',
+    );
+    const facetKeys = [...root.querySelectorAll<HTMLElement>('[data-facet]')].map(
+      (f) => f.dataset.facet!,
+    );
+    const boxes = [...form.querySelectorAll<HTMLInputElement>('input[type=checkbox]')];
+
+    const cardValues = (card: HTMLElement, key: string) =>
+      (card.dataset[key] ?? '').split(' ').filter(Boolean);
+
+    function selected(): Record<string, string[]> {
+      const sel: Record<string, string[]> = {};
+      for (const key of facetKeys) {
+        sel[key] = boxes.filter((b) => b.name === key && b.checked).map((b) => b.value);
+      }
+      return sel;
+    }
+
+    const terms = () =>
+      search.value
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    function matches(card: HTMLElement, sel: Record<string, string[]>, q: string[], skip?: string) {
+      const hay = card.dataset.search ?? '';
+      if (!q.every((t) => hay.includes(t))) return false;
+      for (const key of facetKeys) {
+        if (key === skip || sel[key].length === 0) continue;
+        const vals = cardValues(card, key);
+        if (!sel[key].some((v) => vals.includes(v))) return false;
+      }
+      return true;
+    }
+
+    function apply(updateUrl = true) {
+      const sel = selected();
+      const q = terms();
+      let visible = 0;
+      for (const card of cards) {
+        const show = matches(card, sel, q);
+        card.hidden = !show;
+        if (show) visible++;
+      }
+      countEl.textContent = `${visible} ${visible === 1 ? 'resource' : 'resources'}`;
+      if (showBtn) showBtn.textContent = `Show ${visible} ${visible === 1 ? 'result' : 'results'}`;
+      emptyEl.hidden = visible !== 0;
+
+      // Facet counts: how many results each option would give, given the other filters.
+      for (const box of boxes) {
+        const key = box.name;
+        const n = cards.filter(
+          (c) => matches(c, sel, q, key) && cardValues(c, key).includes(box.value),
+        ).length;
+        const out = form.querySelector<HTMLElement>(`[data-count-for="${key}:${CSS.escape(box.value)}"]`);
+        if (out) out.textContent = String(n);
+        box.closest('.option')?.classList.toggle('is-empty', n === 0 && !box.checked);
+      }
+
+      // Active filter pills.
+      activeList.replaceChildren();
+      let active = 0;
+      for (const box of boxes.filter((b) => b.checked)) {
+        active++;
+        const li = document.createElement('li');
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'pill';
+        const text = box.parentElement?.querySelector('.option-label')?.textContent ?? box.value;
+        b.textContent = text;
+        b.setAttribute('aria-label', `Remove filter: ${text}`);
+        b.addEventListener('click', () => {
+          box.checked = false;
+          apply();
+        });
+        li.append(b);
+        activeList.append(li);
+      }
+      if (q.length) active++;
+      activeWrap.hidden = active === 0;
+      activeCount.hidden = active === 0;
+      activeCount.textContent = String(active);
+
+      if (updateUrl) writeUrl(sel);
+    }
+
+    function sortCards() {
+      const mode = sortSelect.value as 'featured' | 'added' | 'title';
+      const rank = new Map(sortRows.map((r) => [r.id, r]));
+      const sorted = [...cards].sort((a, b) => {
+        const ra = rank.get(a.dataset.resource!)!;
+        const rb = rank.get(b.dataset.resource!)!;
+        if (mode === 'added') return rb.added - ra.added || ra.title.localeCompare(rb.title);
+        if (mode === 'title') return ra.title.localeCompare(rb.title);
+        return ra.featured - rb.featured;
+      });
+      grid.append(...sorted);
+    }
+
+    function writeUrl(sel: Record<string, string[]>) {
+      const params = new URLSearchParams();
+      if (search.value.trim()) params.set('q', search.value.trim());
+      for (const key of facetKeys) if (sel[key].length) params.set(key, sel[key].join(','));
+      if (sortSelect.value !== 'featured') params.set('sort', sortSelect.value);
+      const qs = params.toString();
+      history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+    }
+
+    function readUrl() {
+      const params = new URLSearchParams(location.search);
+      search.value = params.get('q') ?? '';
+      for (const box of boxes) {
+        const vals = (params.get(box.name) ?? '').split(',');
+        box.checked = vals.includes(box.value);
+      }
+      const sort = params.get('sort');
+      if (sort && [...sortSelect.options].some((o) => o.value === sort)) sortSelect.value = sort;
+      // Reveal collapsed tags that are selected.
+      if (boxes.some((b) => b.checked && b.closest('li')?.hasAttribute('data-extra'))) expandTags();
+    }
+
+    function clearAll() {
+      search.value = '';
+      boxes.forEach((b) => (b.checked = false));
+      apply();
+    }
+
+    function expandTags() {
+      root.querySelectorAll<HTMLElement>('[data-extra]').forEach((li) => (li.hidden = false));
+      const more = root.querySelector<HTMLButtonElement>('[data-more]');
+      if (more) more.hidden = true;
+    }
+
+    // Mobile drawer
+    function setOpen(open: boolean) {
+      panel.classList.toggle('is-open', open);
+      backdrop.hidden = !open;
+      openBtn.setAttribute('aria-expanded', String(open));
+      document.documentElement.classList.toggle('filters-locked', open);
+      if (open) search.focus({ preventScroll: true });
+      else openBtn.focus({ preventScroll: true });
+    }
+
+    let t: number | undefined;
+    search.addEventListener('input', () => {
+      clearTimeout(t);
+      t = window.setTimeout(() => apply(), 120);
+    });
+    form.addEventListener('change', () => apply());
+    sortSelect.addEventListener('change', () => {
+      sortCards();
+      apply();
+    });
+    root.querySelectorAll('[data-clear]').forEach((b) => b.addEventListener('click', clearAll));
+    root.querySelector('[data-more]')?.addEventListener('click', expandTags);
+    openBtn.addEventListener('click', () => setOpen(true));
+    root
+      .querySelectorAll('[data-close-filters]')
+      .forEach((el) => el.addEventListener('click', () => setOpen(false)));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && panel.classList.contains('is-open')) setOpen(false);
+    });
+    // "/" focuses search, like many catalog sites.
+    document.addEventListener('keydown', (e) => {
+      const target = e.target as HTMLElement;
+      if (e.key === '/' && !/input|textarea|select/i.test(target.tagName)) {
+        e.preventDefault();
+        search.focus();
+      }
+    });
+
+    readUrl();
+    sortCards();
+    apply(false);
+    root.classList.add('is-ready');
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-catalog]').forEach(initCatalog);
+</script>
+
+<style>
+  .catalog {
+    display: grid;
+    grid-template-columns: 248px minmax(0, 1fr);
+    gap: 36px;
+    align-items: start;
+  }
+
+  /* ---- Filters panel ---- */
+  .filters {
+    position: sticky;
+    top: calc(var(--header-h) + 20px);
+    max-height: calc(100vh - var(--header-h) - 40px);
+    overflow-y: auto;
+    padding-right: 6px;
+    scrollbar-width: thin;
+  }
+  :global(html:not(.js)) .filters,
+  :global(html:not(.js)) .toolbar .sort,
+  :global(html:not(.js)) .filters-open {
+    display: none;
+  }
+  :global(html:not(.js)) .catalog {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .filters-head {
+    display: none;
+  }
+  .filters-title {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+  .search {
+    position: relative;
+    display: block;
+    margin-bottom: 20px;
+  }
+  .search :global(.search-icon) {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    transform: translateY(-50%);
+    color: var(--ink-3);
+    pointer-events: none;
+  }
+  .search input {
+    width: 100%;
+    height: 44px;
+    padding: 0 12px 0 38px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line-strong);
+    background: var(--bg-raised);
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.95rem;
+  }
+  .search input::placeholder {
+    color: var(--ink-3);
+  }
+  .search input:focus {
+    outline: 2px solid var(--focus);
+    outline-offset: -1px;
+    border-color: transparent;
+  }
+  .facet {
+    border: 0;
+    margin: 0 0 18px;
+    padding: 0 0 18px;
+    border-bottom: 1px solid var(--line);
+    min-width: 0;
+  }
+  .facet:last-child {
+    border-bottom: 0;
+  }
+  .facet legend {
+    padding: 0;
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .facet-options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 34px;
+    padding: 2px 6px;
+    margin-inline: -6px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+  .option:hover {
+    background: var(--bg-sunken);
+    color: var(--ink);
+  }
+  .option input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--accent);
+    flex: none;
+  }
+  .option:has(input:checked) {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .option-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .option-count {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .option.is-empty {
+    opacity: 0.45;
+  }
+  .facet-more {
+    margin-top: 6px;
+    padding: 6px 0;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: inherit;
+    font-size: 0.85rem;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+
+  /* ---- Results ---- */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    min-height: 44px;
+  }
+  .result-count {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .sort {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--ink-3);
+  }
+  .sort select {
+    height: 40px;
+    padding: 0 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line-strong);
+    background: var(--bg-raised);
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.9rem;
+  }
+  .filters-open {
+    display: none;
+  }
+  .active-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 0.72rem;
+  }
+  .active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: -4px 0 16px;
+  }
+  .active-filters[hidden] {
+    display: none;
+  }
+  .active-filters ul {
+    display: contents;
+    list-style: none;
+  }
+  .active-filters :global(.pill) {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: var(--bg-raised);
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  .active-filters :global(.pill)::after {
+    content: '×';
+    font-size: 1.1em;
+    color: var(--ink-3);
+  }
+  .clear {
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: inherit;
+    font-size: 0.85rem;
+    text-decoration: underline;
+    cursor: pointer;
+    min-height: 32px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
+    gap: 20px;
+  }
+  .grid :global(.card[hidden]) {
+    display: none;
+  }
+  .empty {
+    padding: 48px 24px;
+    text-align: center;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius);
+    color: var(--ink-2);
+  }
+  .empty h3 {
+    color: var(--ink);
+  }
+
+  .filters-backdrop,
+  .filters-foot {
+    display: none;
+  }
+
+  /* ---- Mobile: filters become a drawer ---- */
+  @media (max-width: 900px) {
+    .catalog {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .filters-open {
+      display: inline-flex;
+    }
+    .filters {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 60;
+      width: min(360px, 88vw);
+      max-height: none;
+      padding: 16px 20px 32px;
+      background: var(--bg);
+      border-right: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      transform: translateX(-102%);
+      transition: transform 0.22s ease;
+      visibility: hidden;
+    }
+    .filters.is-open {
+      transform: none;
+      visibility: visible;
+    }
+    .filters-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .filters-close {
+      display: inline-grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+    .filters-close :global(svg) {
+      width: 22px;
+      height: 22px;
+    }
+    .filters-foot {
+      display: block;
+      position: sticky;
+      bottom: -32px;
+      margin: 0 -20px -32px;
+      padding: 12px 20px 20px;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+    }
+    .filters-foot .btn {
+      width: 100%;
+    }
+    .filters-backdrop:not([hidden]) {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 55;
+      background: rgb(0 0 0 / 0.45);
+    }
+    .sort > span {
+      display: none;
+    }
+  }
+  @media (max-width: 480px) {
+    .grid {
+      gap: 14px;
+    }
+    .result-count {
+      font-size: 0.85rem;
+    }
+  }
+  :global(html.filters-locked) {
+    overflow: hidden;
+  }
+</style>
